@@ -1,0 +1,835 @@
+\documentclass{article}
+
+\usepackage{booktabs}
+\usepackage[top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
+\usepackage{wasysym}
+
+%%%%%%%%% MACROS %%%%%%%%%
+%primary macros
+\usepackage{xspace}% to avoid annoyance with spaces when using macros
+\newcommand{\frequency}[1]{\ensuremath{\mathrm{f}(#1)}}
+\newcommand{\proportion}[1]{\ensuremath{\mathrm{p}(#1)}}
+\newcommand{\mean}[1]{\ensuremath{\overline{#1}}}
+\newcommand{\minimum}[1]{\ensuremath{\mathrm{p}_{\min}(#1)}}
+\newcommand{\Mitochondria}{M\xspace}
+\newcommand{\Autosome}{\mathbf{a}\xspace}
+%secondary macros
+
+\newcommand{\MtIttIntrogressions}[1]{\frequency{\Mitochondria#1}}
+\newcommand{\AutCopiesIntrogressed}{\mean{\Autosome}\xspace}
+\newcommand{\AutLociIntrogressed}[1]{\proportion{\Autosome#1}}
+\newcommand{\MeanAutLociIntrogressed}[1]{\mean{\proportion{\Autosome#1}}}
+%\newcommand{\MinAutLociIntrogressed}[1]{$\min$(\proportion{\Autosome#1})}
+\newcommand{\MinAutLociIntrogressed}[1]{\minimum{\Autosome#1}}
+\newcommand{\singleAutosome}[1]{\ensuremath{a_{#1}}}
+
+\newcommand{\FitnessHybrid}{\ensuremath{\omega_{h}}}
+\newcommand{\BiasedFitnessHybrid}{\ensuremath{\omega_{h \female / \male}}}
+\newcommand{\AsymmetricCross}{\ensuremath{c}}
+\newcommand{\BiasedDispersal}{\ensuremath{\sigma_{\female}^2 / \sigma_{\male}^2}}
+
+\newcommand{\habitatdim}[1]{\ensuremath{#1}}% could be N_X and N_Y, or X and Y or something else...
+
+
+\begin{document}
+
+<<HighMigre, results='asis', echo=FALSE>>=
+library(xtable)
+#setwd("C:/Users/Thimothee Admin/Documents/external research/PodarcisCBGP/Renew simulations/")
+setwd("C:/Users/Timothée/Documents/Studies/PodarcisCBGP/New simulations/")
+source(file="C:/Users/Timothée/Documents/Studies/PodarcisCBGP/New simulations/FunctionsSimul.R")
+
+BDfix<-read.table("BDb/BDbresults.txt",header=T)
+BDdistriMt<-read.table("BDb/BDbDistriMtMax.txt",header=T)
+BDdistriMt<-BDdistriMt[order(BDdistriMt$Param),]
+BDdistriMt$DispB<- BDdistriMt$Param
+BDnofix<-read.table("BDb/BDbresultsnofix.txt",header=T)
+BD<-BDfix
+BD$ACross<-1
+BD$DispB<-round(BDfix$Param,3)
+BD$FitnessH<-1
+BD$Invasion<-0
+BD<-BD[order(BD$DispB),]
+BDnofix$DispB<-round(BDnofix$Param,3)
+BDnofix<- BDnofix[order(BDnofix$DispB),]
+
+BCfix<-read.table("Homogamy/Homogamyresults.txt",header=T)
+BCdistriMt<-read.table("Homogamy/HomogamyDistriMtMax.txt",header=T)
+BCdistriMt<-rbind(BCdistriMt,BDdistriMt[which(BDdistriMt$Simul=="BDb0"),1:4])
+BCdistriMt$Param[which(BCdistriMt$Simul=="BDb0")]<-0
+BCdistriMt$Param<-1-BCdistriMt$Param
+BCdistriMt$ACross<-BCdistriMt$Param
+BCdistriMt<-BCdistriMt[order(BCdistriMt$Param),]
+BCnofix<-read.table("Homogamy/Homogamyresultsnofix.txt",header=T)
+BCnofix<-rbind( BCnofix,BDnofix["BDb0",-36])
+BCnofix$ACross<-1-c(0.5,0.99,0.1,0.3,0.7,0)
+#lmBC<-cbind(lmBCfix[,1:4],lmBCnofix[,-c(1:4)])
+BC<-rbind(BCfix,BDfix["BDb0",])
+BC$ACross<-1-c(0.5,0.99,0.1,0.3,0.7,0)
+BC$DispB<-1
+BC$FitnessH<-1
+BC$Invasion<-0
+BC<-BC[order(BC$ACross),]
+BCnofix<- BCnofix[order(BCnofix$ACross),]
+
+MultiBCfix<-read.table("HomogamyMulti/HMresults.txt",header=T)
+
+
+BHfix<-read.table("BSH/BSHresults.txt",header=T)
+BHdistriMt<-read.table("BSH/BSHDistriMtMax.txt",header=T)
+BHdistriMt$Param<-log(BHdistriMt$Param)
+BHdistriMt<-rbind(BHdistriMt,BDdistriMt[which(BDdistriMt$Simul=="BDb0"),1:4])
+BHdistriMt$FitnessH<- BHdistriMt$Param
+BHdistriMt<-BHdistriMt[order(BHdistriMt$Param),]
+BHnofix<-read.table("BSH/BSHresultsnofix.txt",header=T)
+BHnofix<-rbind( BHnofix,BDnofix["BDb0",-36])
+BHnofix$FitnessH<-c(BHfix$Param,1)
+#BH<-cbind(BHfix[,1:4],BHnofix[,-c(1:4)])
+BH<-rbind(BHfix,BDfix["BDb0",])
+BH$ACross<-1
+BH$DispB<-1
+BH$FitnessH<-c(BHfix$Param,1)
+BH$Invasion<-0
+BH<-BH[order(BH$FitnessH),]
+BHnofix<- BHnofix[order(BHnofix$FitnessH),]
+
+BDHfix<-read.table("BDispSurv/BDSresults.txt",header=T)
+BDHdistriMt<-read.table("BDispSurv/BDSDistriMtMax.txt",header=T)
+#BDHnofix<-read.table("lmBDC/lmBDCresultsnofix.txt",header=T)
+#BDH<-cbind(lmBDHfix[,1:4],lmBDHnofix[,-c(1:4)])
+BDH<-BDHfix
+DispB<-matrix(data=rep(c(1.6,19.11,181.25),each=3),nrow=9,ncol=1)
+FitnessH<-matrix(data=rep(c(2,11,559),3),nrow=9,ncol=1)
+BDH$ACross<-1
+BDH$DispB<-DispB
+BDH$FitnessH<-FitnessH
+BDH$Invasion<-0
+
+BDCfix<-read.table("BDispHomog/BDHresults.txt",header=T)
+BDCdistriMt<-read.table("BDispHomog/BDHDistriMtMax.txt",header=T)
+names(BDCdistriMt)[3]<-"DistriNuMtMax"
+#BDCnofix<-read.table("lmBDCC/lmBDCCresultsnofix.txt",header=T)
+#BDC<-cbind(lmBDCfix[,1:4],lmBDCnofix[,-c(1:4)])
+BDC<-BDCfix
+DispB<-matrix(data=rep(c(1.6,19.11,181.25),each=3),nrow=9,ncol=1)
+ACross<-matrix(data=rep(c(0.95,0.7,0.9),3),nrow=9,ncol=1)
+BDC$ACross<-ACross
+BDC$DispB<-DispB
+BDC$FitnessH<-1
+BDC$Invasion<-0
+
+BHCfix<-read.table("BSurvHomog/BSHHresults.txt",header=T)
+BHCdistriMt<-read.table("BSurvHomog/BSHHDistriMtMax.txt",header=T)
+#BHCnofix<-read.table("lmBHC/lmBHCresultsnofix.txt",header=T)
+#BHC<-cbind(lmBHCfix[,1:4],lmBHCnofix[,-c(1:4)])
+BHC<-BHCfix
+ACross<-matrix(data=rep(c(0.95,0.7,0.9),3),nrow=9,ncol=1)
+FitnessH<-matrix(data=rep(c(2,11,559),each=3),nrow=9,ncol=1)
+BHC$ACross<-ACross
+BHC$DispB<-1
+BHC$FitnessH<-FitnessH
+BHC$Invasion<-0
+
+DHHfix<-read.table("DHH/DHHresults.txt",header=T)
+DHHdistriMt<-read.table("DHH/DHHDistriMtMax.txt",header=T)
+
+allcombiDistriMt<-rbind(DHHdistriMt,BHCdistriMt,BDCdistriMt,BDHdistriMt)
+
+Hunfix<-read.table("InvasionTotale/HunresultsProfGrid.txt",header=T)
+Hunfix[which(Hunfix$FixMt==0),4:33]<-NA
+HundistriMt<-read.table("InvasionTotale/HunDistriMtMaxProfGrid.txt",header=T)
+HundistriMt$Param<-log(HundistriMt$Param)
+#lmHunnofix<-read.table("lmHun/lmHunresultsnofix.txt",header=T)
+#lmHun<-cbind(lmHunfix[,1:4],lmHunnofix[,-c(1:4)])
+#Hun<-Hunfix[c(1:4,13:15),]
+Hun<-Hunfix
+Hun$ACross<-1
+Hun$DispB<-round(Hun$Param,3)
+Hun$FitnessH<-1
+Hun$Invasion<-as.factor(1)
+Hun<-Hun[order(Hun$DispB),]
+
+HunProfilefix<-read.table("InvasionTotale/HunresultsProf.txt",header=T)
+HunProfilefix[which(HunProfilefix$FixMt==0),4:33]<-NA
+HunProfiledistriMt<-read.table("InvasionTotale/HunDistriMtMaxProf.txt",header=T)
+HunProfiledistriMt$Param<-log(HunProfiledistriMt$Param)
+
+HunPr<-HunProfilefix
+HunPr$ACross<-1
+HunPr$DispB<-round(HunPr$Param,3)
+HunPr$FitnessH<-1
+HunPr$Invasion<-as.factor(1)
+HunPr<-HunPr[order(HunPr$DispB),]
+
+outmh1<-mtfunc("mh/mh1")
+outmh2<-mtfunc("mh/mh2")
+
+SynthesisTot<-rbind(BD,BC,BH,BDC,BDH,BHC,Hun,HunPr)
+#Synthesis<-SynthesisTot[,c("NbRun","FixMt","IntAut","MaxMtI","ACross","DispB","FitnessH","Invasion")]
+@
+
+<<NuclSelec, echo=FALSE>>=
+setwd("C:/Users/Timothée/Documents/Studies/PodarcisCBGP/New simulations/")
+
+#reference
+BDref<-BDfix["BDb0",]
+BDrefdistriMt<-BDdistriMt[which(BDdistriMt$Simul=="BDb0"),]
+BDref$NbL<-1
+BDref$Neu<-0.5
+BDref$R<-0.5
+BDref$TS<-0.9
+BDrefdistriMt$NbL<-1
+BDrefdistriMt$Neu<-0.5
+BDrefdistriMt$R<-0.5
+BDrefdistriMt$TS<-0.9
+
+#multi locus selection
+BDDS<-read.table("BDDS/BDDSresults.txt",header=T)
+BDDSdistriMt<-read.table("BDDS/BDDSDistriMtMax.txt",header=T)
+BDDS$NbL<-20
+BDDS$Neu<-0.5
+BDDS$R<-0.5
+BDDS$TS<-0.9
+BDDSdistriMt$NbL<-20
+BDDSdistriMt$Neu<-0.5
+BDDSdistriMt$R<-0.5
+BDDSdistriMt$TS<-0.9
+
+
+#non neutral markers
+DSRI<-read.table("DSRInter/DSRIresults.txt",header=T)
+DSRIdistriMt<-read.table("DSRInter/DSRIDistriMtMax.txt",header=T)
+DSRI$NbL<-20
+DSRI$Neu<-0
+DSRI$R<-0.5
+DSRI$TS<-0.9
+DSRIdistriMt$NbL<-20
+DSRIdistriMt$Neu<-0
+DSRIdistriMt$R<-0.5
+DSRIdistriMt$TS<-0.9
+
+#No recombi at all
+NORec<-read.table("BDWR/BDWRresults.txt",header=T)
+NORec$r<-0
+NORecdistriMt<-read.table("BDWR/BDWRDistriMtMax.txt",header=T)
+NORecdistriMt$r<-0
+#r=0.001
+LLRec<-read.table("wRmAmHMt/wRmAmHMtresults.txt",header=T)
+LLRec$r<-0.001
+LLRecdistriMt<-read.table("wRmAmHMt/wRmAmHMtDistriMtMax.txt",header=T)
+LLRecdistriMt$r<-0.001
+#r=0.01
+LRec<-read.table("R01mAmHMt/R01mAmHMtresults.txt",header=T)
+LRec$r<-0.01
+LRecdistriMt<-read.table("R01mAmHMt/R01mAmHMtDistriMtMax.txt",header=T)
+LRecdistriMt$r<-0.01
+#r=0.1
+MRec<-read.table("sRmAmHMt/sRmAmHMtresults.txt",header=T)
+MRec$r<-0.1
+MRecdistriMt<-read.table("sRmAmHMt/sRmAmHMtDistriMtMax.txt",header=T)
+MRecdistriMt$r<-0.1
+#r=0.5
+IRec<- BDDS ["BDDS0",c(1:34)]
+IRec$r<-0.5
+IRecdistriMt<- BDDSdistriMt[,c(1:4)]
+IRecdistriMt$r<-0.5
+
+Rec<-rbind(NORec["BDWR0",],LLRec["wRmAmHMt0",],LRec["R01mAmHMt0",],MRec["sRmAmHMt0",],IRec)
+
+RecdistriMt<-rbind(NORecdistriMt[NORecdistriMt$Simul=="BDWR0",],LLRecdistriMt[LLRecdistriMt$Simul=="wRmAmHMt0",],LRecdistriMt[LRecdistriMt$Simul=="R01mAmHMt0",],MRecdistriMt[MRecdistriMt$Simul=="sRmAmHMt0",],IRecdistriMt)
+RecdistriMt$DistriMtMax[(RecdistriMt$Simul=="wRmAmHMt0" | RecdistriMt$Simul=="R01mAmHMt0" | RecdistriMt$Simul=="sRmAmHMt0")]<- RecdistriMt$DistriMtMax[(RecdistriMt$Simul=="BDWR0")]
+
+RecdistriMt$DistriMtMax[RecdistriMt$r==0.001]
+RecdistriMt$DistriMtMax[RecdistriMt$r==0]
+
+#total selection
+TotSel<-read.table("MAMHMt/MAMHMtresults.txt")
+TotSel<-TotSel[c("MAMHMt0","MAMHMt6","MAMHMt12"),]
+TotSel$Ts<-c(0.9,0.5,0.1)
+
+TotSelDistriMt<- read.table(file = "MAMHMt/MAMHMtDistriMtMax.txt",header=T)
+TotSelDistriMt<-TotSelDistriMt[which( TotSelDistriMt$Simul %in% c("MAMHMt0","MAMHMt6","MAMHMt12")),]
+TotSelDistriMt$DistriMtMax[!is.na(1)]<-RecdistriMt$DistriMtMax[(RecdistriMt$Simul=="BDWR0")]
+TotSelDistriMt$Ts[which(TotSelDistriMt$Simul=="MAMHMt0")]<- 0.9
+TotSelDistriMt$Ts[which(TotSelDistriMt$Simul=="MAMHMt6")]<- 0.5
+TotSelDistriMt$Ts[which(TotSelDistriMt$Simul=="MAMHMt12")]<- 0.1
+TotSelDistriMt<- TotSelDistriMt[order(TotSelDistriMt$Ts),]
+
+NuclS<-rbind(BDref,BDDS,DSRI)
+NuclSdistriMt<-rbind(BDrefdistriMt[,-5],BDDSdistriMt,DSRIdistriMt)
+
+NuclSdistriMt[which(NuclSdistriMt$Simul=="BDDS0"),c(2,3)]<-TotSelDistriMt[which(TotSelDistriMt$Simul=="MAMHMt0"),c(2,3)]
+
+RecdistriMt[which(RecdistriMt$Simul=="BDDS0"),c(2,3)]<-TotSelDistriMt[which(TotSelDistriMt$Simul=="MAMHMt0"),c(2,3)]
+
+mean(DSRIdistriMt$DistriMtMax)
+mean(BDrefdistriMt$DistriMtMax)
+mean(BDDSdistriMt$DistriMtMax)
+
+sd(DSRIdistriMt$DistriMtMax)
+sd(BDrefdistriMt$DistriMtMax)
+sd(BDDSdistriMt$DistriMtMax)
+
+@
+
+
+<<ParamPlot,echo=FALSE>>=
+cexP<-1.3
+limY<-1.3
+atLab<- seq(0,to = 1,by = 0.2)
+colMtCapt<-"black"
+colMt<-gray(level=0.3)
+coeffjitter<-200
+lowBound<-"0"
+highBound<-"100"
+
+plotMt<-function(x,y,dmt,xlabb,transfo=identity,DrawLegend=TRUE,limY=1.3,main="",...){
+  par(mar=c(5,4,4,2)+0.1)
+  calcboxwex<-(max(transfo(x[,y]),na.rm=T)-min(transfo(x[,y]),na.rm=T))/30
+  plot(transfo(x[,y]),x$FixMt,col=colMtCapt,type="b",ylim=c(0,limY),pch=15,lwd=3,xlab=xlabb,ylab="$$",main=main,cex.lab=cexP,axes = T,xaxt="n",yaxt="n",cex=cexP)  
+axis(side = 1,at = transfo(x[,y]),labels = x[,y],cex.axis=cexP)
+axis(side = 2,at = atLab,labels = atLab,cex.axis=cexP,las=1)
+boxplot(DistriMtMax~Param, at=transfo(x[,y]), data=dmt,add=T,axes=F,border=colMt,boxwex=calcboxwex,boxlwd=2,whisklwd=2,staplelwd=2,outlwd=2,medlwd=2)
+points(transfo(x[,y]),x[,"FixMt"],col=colMtCapt,type="b",pch=15,lwd=3)#to override the boxplots
+for (i in 1:dim(x)[2])
+{
+  bound<-2*(x$FixMt[i]*(1-x$FixMt[i]))/sqrt(x$NbRun[i])
+  points(rep(transfo(x[i,y]),2),y=c(x$FixMt[i]+bound,x$FixMt[i]-bound),type="l",col=colMtCapt,lwd=2)
+}
+if(DrawLegend==T)
+  {legend(x="topleft",legend=c("$\\MtIttIntrogressions{=1}$","$\\Mitochondria$"),col=c(colMtCapt,colMt),pch=c(15,1),lwd=c(3,2),ncol=1,pt.lwd=c(2,1.5),cex=1)}
+}
+###########
+plotAut<-function(x,y,xlabb,transfo=identity,DrawLegend=T,limY=1.3,main="",...){
+  par(mar=c(5,4,4,2)+0.1)
+  calcjitter<-(max(transfo(x[,y]),na.rm=T)-min(transfo(x[,y]),na.rm=T))/coeffjitter
+plot(transfo(x[,y]),x$IntAut,col=gray(level=0.3),type="b",ylim=c(0,limY),pch=15,lwd=2,xlab=xlabb,ylab="",main=main,cex.lab=cexP,axes = T,xaxt="n",yaxt="n",cex=cexP)
+axis(side = 1,at = transfo(x[,y]),labels = x[,y],cex.axis=cexP)
+axis(side = 2,at = atLab,labels = atLab,cex.axis=cexP,las=1)
+points(transfo(x[,y])+calcjitter,x$IntAut10,col=gray(level=0.6),pch=1,lwd=2,type="b",lty=2)
+points(transfo(x[,y])+2*calcjitter,x$FixAut,col=gray(level=0.5),pch=6,lwd=2,type="b",lty=3)
+points(transfo(x[,y])-calcjitter,x$MeanExoAut,col="black",pch=18,lwd=2,type="b",lty=1)
+for (i in 1:dim(x)[1])
+{
+  points(rep(transfo(x[i,y]),2),c(x[i,paste("Introgq",lowBound,sep="")],x[i,paste("Introgq",highBound,sep="")]),type="l",col=gray(0.3))
+  points(rep(transfo(x[i,y]),2)+calcjitter,c(x[i,paste("Introg10q",lowBound,sep="")],x[i,paste("Introg10q",highBound,sep="")]),type="l",col=gray(0.6))
+  points(rep(transfo(x[i,y]),2)+2*calcjitter,c(x[i,paste("Fixq",lowBound,sep="")],x[i,paste("Fixq",highBound,sep="")]),type="l",col=gray(0.5))
+  points(rep(transfo(x[i,y]),2)-calcjitter,c(x[i,paste("MeanExoq",lowBound,sep="")],x[i,paste("MeanExoq",highBound,sep="")]),type="l",col=gray(0.0))
+}
+if (DrawLegend==T)
+{legend(x="topleft",legend=c("$\\AutLociIntrogressed{>0}$","$\\AutLociIntrogressed{>0.1}$","$\\AutLociIntrogressed{=1}$","$\\AutCopiesIntrogressed$"),col=c(gray(level=0.3),gray(level=0.6),gray(level=0.5),"black"),pch=c(15,1,6,18),lty=c(1,2,3,1),ncol=1,pt.lwd=2,lwd=2,cex=1)  }
+}
+
+plotDisc<-function(x,y,dmt,xlabb,transfo=identity,DrawLegend=TRUE,limY=1.3,limX=c(0,1),main="",...){
+  par(mar=c(5,5,4,2)+0.1)
+  dmt$Param<-dmt[,y]
+  dmt$disc<-dmt$DistriMtMax-dmt$DistriNuMtMax
+  calcboxwex<-(max(transfo(x[,y]),na.rm=T)-min(transfo(x[,y]),na.rm=T))/30
+  boxplot(disc~Param,data=dmt,axes=T,xaxt="n",yaxt="n",at=sort(transfo(x[,y])),boxwex=calcboxwex,border=colMt,boxlwd=2,whisklwd=2,staplelwd=2,outlwd=2,medlwd=2,xlim=limX,xlab=xlabb,ylab="",cex.lab=cexP,las=1,cex.axis=cexP,ylim=c(min(dmt$disc,na.rm = TRUE),1),main=main)
+abline(h = 0.8,col=gray(level = 0.5),lwd=3,lty=2)
+  mtext("\\textbf{Mito-nuclear discordance}",side=2,line=3.2,cex=cexP)
+axis(side = 1,at = transfo(x[,y]),labels = x[,y],cex.axis=cexP,xpd = TRUE)
+axis(side = 2,at = seq(-1,1,0.2),cex.axis=cexP,las=1,xpd = FALSE)
+
+}
+@
+
+<<mh,echo=FALSE>>=
+mhDistriMt<-read.table(file="C:/Users/Timothée/Documents/Studies/PodarcisCBGP/New simulations/mh/mhDistriMtMax.txt",header = T)
+
+hixtx<-hist(x = mhDistriMt$DistriMtMax[mhDistriMt$Param==0.3]-mhDistriMt$DistriNuMtMax[mhDistriMt$Param==0.3],breaks = 50,plot=F)
+hixtx$counts<-log(hixtx$counts+1)
+hixty<-hist(x = mhDistriMt$DistriMtMax[mhDistriMt$Param==0.9]-mhDistriMt$DistriNuMtMax[mhDistriMt$Param==0.9],breaks = 50,plot = F)
+hixty$counts<-log(hixty$counts+1)
+@
+
+<<mhDisc,dev='tikz',echo=F,fig.height=7,fig.width=9,out.width='\\textwidth',fig.align='center'>>=
+par(mar=c(5,5,4,2)+0.1,cex=1.5)
+plot(hixtx,xlim=c(-0.3,1),col=rgb(red = 1,0,0,0.3),yaxt="n",xlab="Mito-nuclear discordance ($\\Mitochondria - \\AutCopiesIntrogressed$)",main="")
+plot(hixty,add=T,col=rgb(red = 0,0,1,0.3))
+abline(v=0.8,lty=2,lwd=3)
+county<-c(0,1,10,100,1000)
+axis(side = 2,at = log(county+1),labels = county/1000,las=1)
+legend(x = "topright",legend = c("$\\phi_{h}=0.9$","$\\phi_{h}=0.3$"),fill=c(rgb(red = 0,0,1,0.3),rgb(red = 1,0,0,0.3)),bg = "white")
+@
+
+<<allcombiDisc,dev='tikz',echo=F,fig.height=7,fig.width=9,out.width='\\textwidth',fig.align='center'>>=
+allcombidisc<-allcombiDistriMt$DistriMtMax- allcombiDistriMt$DistriNuMtMax
+par(mar=c(5,5,4,2)+0.1,cex=1.5)
+achist<-hist(allcombidisc,breaks=50,plot = F)
+achist$counts<-achist$counts/sum(achist$counts)
+plot(achist,xlim=c(-0.5,1),col=gray(level = 0.5),las=1,xlab="Mito-nuclear discordance ($\\Mitochondria - \\AutCopiesIntrogressed$)",main="")
+abline(v=0.8,lty=2,lwd=3)
+
+@
+
+
+<<NuNbLMt,dev='tikz',echo=F,out.width='\\textwidth',fig.align='center'>>=
+NuclSdistriMt$Param<-NuclSdistriMt$NbL
+plotMt(x=NuclS[which(NuclS$Neu==0.5 & NuclS$R==0.5 & NuclS$TS==0.9),],y="NbL",dmt=NuclSdistriMt,xlabb="Number of local adaptation loci",transfo=identity)
+@
+
+<<NuNbLAut,dev='tikz',echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotAut(x=NuclS[which(NuclS$Neu==0.5 & NuclS$R==0.5 & NuclS$TS==0.9),],y="NbL",xlabb="Number of local adaptation loci",transfo=identity)
+@
+
+<<NuNbLDisc,dev='tikz',echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotDisc(x=NuclS[which(NuclS$Neu==0.5 & NuclS$R==0.5 & NuclS$TS==0.9),],dmt = NuclSdistriMt[which(NuclSdistriMt$Neu==0.5 & NuclSdistriMt$R==0.5 & NuclSdistriMt$TS==0.9),],y="NbL",xlabb="Number of local adaptation loci",transfo=identity,limX = c(min(NuclS$NbL), max(NuclS$NbL)))
+NuclS[which(NuclS$Neu==0.5 & NuclS$R==0.5 & NuclS$TS==0.9),]
+
+ boxplot(DistriMtMax~ NbL,data=NuclSdistriMt[which(NuclSdistriMt$Neu==0.5 & NuclSdistriMt$R==0.5 & NuclSdistriMt$TS==0.9),])
+ boxplot(DistriNuMtMax~ NbL,data=NuclSdistriMt[which(NuclSdistriMt$Neu==0.5 & NuclSdistriMt$R==0.5 & NuclSdistriMt$TS==0.9),])
+ 
+@
+
+
+<<NeuMt,dev='tikz',echo=F,out.width='\\textwidth',fig.align='center'>>=
+NuclSdistriMt$Param<-NuclSdistriMt$Neu
+plotMt(x=NuclS[which(NuclS$NbL==20 & NuclS$R==0.5 & NuclS$TS==0.9),],y="Neu",dmt=NuclSdistriMt,xlabb="Intra pair recombination rate",transfo=identity)
+@
+
+<<NeuAut,dev='tikz',echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotAut(x=NuclS[which(NuclS$NbL==20 & NuclS$R==0.5 & NuclS$TS==0.9),],y="Neu",xlabb="Intra pair recombination rate",transfo=identity)
+@
+
+<<NeuDisc,dev='tikz',echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotDisc(x=NuclS[which(NuclS$NbL==20 & NuclS$R==0.5 & NuclS$TS==0.9),],dmt = NuclSdistriMt,y="Neu",xlabb="Intra pair recombination rate",transfo=identity,limX = c(min(NuclS$Neu), max(NuclS$Neu)))
+@
+
+<<RecAut, dev='tikz',echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotAut(x=Rec,y="r",xlabb="Recombination rate",transfo=function(a){log(a+0.0001)})
+@
+
+<<RecMt, dev='tikz',echo=F,out.width='\\textwidth',fig.align='center'>>=
+RecdistriMt$Param<-RecdistriMt$r
+plotMt(x=Rec,dmt=RecdistriMt,y="r",xlabb="Recombination rate",transfo=function(a){log(a+0.0001)})
+
+@
+
+<<RecDisc,dev='tikz',echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotDisc(x=Rec,dmt = RecdistriMt ,y="r",xlabb="Recombination rate",transfo=function(a){log(a+0.0001)},limX=log(0.0001+c(0,1)))
+@
+
+<<TsAut, dev='tikz',echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotAut(x=TotSel,y="Ts",xlabb="Autosomal selection",transfo=identity)
+@
+
+<<TsDisc,dev='tikz',echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotDisc(x=TotSel,dmt =TotSelDistriMt ,y="Ts",xlabb="Autosomal selection",transfo=identity,limX=c(min(TotSel$Ts),max(TotSel$Ts)))
+@
+
+All nuclear selection together:
+
+<<AllNuclSelDisc, dev='tikz',echo=F,fig.height=6,fig.width=9,out.width='\\textwidth',fig.align='center'>>=
+  par(layout(mat=matrix(1:3,nrow = 1,byrow=TRUE),widths = c(2,3,2.5)),las=1)  
+limY<-c(-0.55,1)
+  #1
+  par(mar=c(5,5,2,0)+0.1)
+  x=NuclS[which(NuclS$Neu==0.5 & NuclS$R==0.5 & NuclS$TS==0.9),]
+  dmt = NuclSdistriMt[which(NuclSdistriMt$Neu==0.5 & NuclSdistriMt$R==0.5 & NuclSdistriMt$TS==0.9),]
+  y="NbL"
+  xlabb="Number of loci"
+  transfo=identity
+  limX = c(-5,25)
+
+  dmt$Param<-dmt[,y]
+  dmt$disc<-dmt$DistriMtMax-dmt$DistriNuMtMax
+  calcboxwex<-6
+  boxplot(disc~Param,data=dmt,axes=T,xaxt="n",at=transfo(x[,y]),boxwex=calcboxwex,border=colMt,boxlwd=2,whisklwd=2,staplelwd=2,outlwd=2,medlwd=2,xlim=limX,xlab=xlabb,ylab="",cex.lab=cexP*1.2,las=1,cex.axis=cexP*1.2,ylim=limY,main="\\textbf{(A)}")
+abline(h = 0.8,col=gray(level = 0.5),lwd=3,lty=2)
+  mtext("\\textbf{Mito-nuclear discordance}",side=2,line=3.2,cex=cexP,las=0)
+axis(side = 1,at = transfo(x[,y]),labels = x[,y],cex.axis=cexP*1.2,xpd = TRUE)
+
+#2
+par(mar=c(5,2,2,0)+0.1)
+x=Rec
+dmt = RecdistriMt 
+y="r"
+xlabb="Autosomal length (Morgans)"
+transfo=function(a){log(a+0.0001)}
+limX=log(0.0001+c(0,1))-c(1,0)
+calcboxwex<- 0.9
+  dmt$Param<-dmt[,y]
+  dmt$disc<-dmt$DistriMtMax-dmt$DistriNuMtMax
+  boxplot(disc~Param,data=dmt,axes=T,yaxt="n",xaxt="n",at=transfo(x[,y]),boxwex=calcboxwex,border=colMt,boxlwd=2,whisklwd=2,staplelwd=2,outlwd=2,medlwd=2,xlim=limX,xlab=xlabb,ylab="",cex.lab=cexP*1.2,las=1,cex.axis=cexP*1.2,ylim=limY,main="\\textbf{(B)}")
+abline(h = 0.8,col=gray(level = 0.5),lwd=3,lty=2)
+axis(side = 1,at = transfo(x[,y]),labels = x[,y]*40,cex.axis=cexP*1.2,xpd = TRUE)
+axis(side=2,at = c(-0.5,0,0.5,1),labels=NA)
+#3
+par(mar=c(5,2,2,2)+0.1)
+x=TotSel
+dmt =TotSelDistriMt 
+y="Ts"
+xlabb="Total selection"
+transfo=identity
+limX=c(min(TotSel$Ts),max(TotSel$Ts))+c(-0.1,0.1)
+calcboxwex<-0.125
+  dmt$Param<-dmt[,y]
+  dmt$disc<-dmt$DistriMtMax-dmt$DistriNuMtMax
+  boxplot(disc~Param,data=dmt,axes=T,yaxt="n",xaxt="n",at=sort(transfo(x[,y])),boxwex=calcboxwex,border=colMt,boxlwd=2,whisklwd=2,staplelwd=2,outlwd=2,medlwd=2,xlim=limX,xlab=xlabb,ylab="",cex.lab=cexP*1.2,las=1,cex.axis=cexP*1.2,ylim=limY,main="\\textbf{(C)}")
+abline(h = 0.8,col=gray(level = 0.5),lwd=3,lty=2)
+axis(side = 1,at = transfo(x[,y]),labels = x[,y],cex.axis=cexP*1.2,xpd = TRUE)
+axis(side=2,at = c(-0.5,0,0.5,1),labels=NA)
+@
+
+<<BDmt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotMt(x=BD,y="DispB",dmt=BDdistriMt,xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,main="\\textbf{(B) Mitochondrial introgression}")
+@
+
+<<BDaut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotAut(x=BD,y="DispB","Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log, main="\\textbf{(C) Autosomal introgression}")
+@
+
+<<BDautFNF, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotAut(x=BDnofix,y="DispB","Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log, main="\\textbf{(C) Autosomal introgression}")
+@
+
+
+<<BDdisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotDisc(x = BD,y = "DispB",dmt = BDdistriMt,xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,DrawLegend = T,limX=log(c(min(BDdistriMt$Param),max(BDdistriMt$Param))), main="\\textbf{(A) Mito-nuclear discordance}")
+@
+
+
+<<BHmt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotMt(x=BH,y="FitnessH",dmt=BHdistriMt,xlabb="Female relative hybrid survival ($\\phi_{h,\\female} / \\phi_{h,\\male}$)",transfo=log, main="\\textbf{(A) Mitochondrial introgression}")
+@
+
+<<BHaut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotAut(x=BH,y="FitnessH","Female relative hybrid survival ($\\phi_{h,\\female} / \\phi_{h,\\male}$)",transfo=log)
+@
+
+<<BHautFNF, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotAut(x=BHnofix,y="FitnessH","Female relative hybrid survival ($\\phi_{h,\\female} / \\phi_{h,\\male}$)",transfo=log, main="\\textbf{(B) Autosomal introgression}",limX=(c(min(BHdistriMt$Param),max(BHdistriMt$Param))))
+@
+
+<<BHdisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotDisc(x = BH,y = "FitnessH",dmt = BHdistriMt,xlabb="Female relative hybrid survival ($\\phi_{h,\\female} / \\phi_{h,\\male}$)",transfo=log,DrawLegend = T,limX=(c(min(BHdistriMt$Param),max(BHdistriMt$Param))),main="\\textbf{(A) Sex-biased hybrid fitness}")
+@
+
+<<BCmt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotMt(x=BC,y="ACross",dmt=BCdistriMt,xlabb="Relative symmetry of inter-taxa crosses ($\\psi$)",main="\\textbf{(A) Mitochondrial introgression}")
+@
+
+<<BCaut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotAut(x=BC,y="ACross","Relative symmetry of inter-taxa crosses ($\\psi$)",transfo=identity,main="\\textbf{(B) Autosomal introgression}")
+@
+
+<<BCautFNF, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotAut(x=BCnofix,y="ACross","Relative symmetry of inter-taxa crosses ($\\psi$)",transfo=identity, main="\\textbf{(B) Autosomal introgression}",limX=(c(min(BCdistriMt$Param),max(BCdistriMt$Param))))
+@
+
+
+<<BCdisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotDisc(x = BC,y = "ACross",dmt = BCdistriMt,xlabb="Relative symmetry of inter-taxa crosses ($\\psi$)",transfo=identity,DrawLegend = T,limX=c(min(BCdistriMt$Param),max(BCdistriMt$Param)),main="\\textbf{(B) Asymmetric crosses between taxa}")
+@
+
+
+<<Hunmt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+HundistriMt$Param<-round(HundistriMt$Param,digits = 6)
+HundistriMt$DispB<- exp(HundistriMt$Param)
+plotMt(x=Hun,y="DispB",dmt=HundistriMt,xlabb="$m_{\\female} / m_{\\male}$",transfo=log)
+@
+
+<<Hunaut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotAut(x=Hun,y="DispB","$m_{\\female} / m_{\\male}$",transfo=log)
+@
+
+<<HunDisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+HundistriMt$DispB<- exp(round(HundistriMt$Param,digits = 6))
+plotDisc(x=Hun,dmt = HundistriMt, y="DispB",xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,limX = log(c(min(Hun$DispB),max(Hun$DispB))),main="\\textbf{(A) Whole area}")
+@
+
+
+<<HunPrmt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotMt(x=HunPr,y="DispB",dmt=HunProfiledistriMt,xlabb="$m_{\\female} / m_{\\male}$",transfo=log)
+@
+
+<<HunPraut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotAut(x=HunPr,y="DispB","$m_{\\female} / m_{\\male}$",transfo=log)
+@
+
+<<HunPrDisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+HunProfiledistriMt$DispB<- exp(round(HunProfiledistriMt$Param,digits = 6))
+plotDisc(x=HunPr,dmt = HunProfiledistriMt, y="DispB",xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,limX = log(c(min(HunPr$DispB),max(HunPr$DispB))),main="\\textbf{(B) Invaded area}")
+@
+
+
+<<LM, results='asis', echo=FALSE>>=
+#setwd("C:/Users/Thimothee Admin/Documents/external research/PodarcisCBGP/Renew simulations/")
+setwd("C:/Users/Timothée/Documents/Studies/PodarcisCBGP/Renew simulations")
+
+lmIfix<-read.table("LowI/LowIresults.txt",header=T)
+lmInofix<-read.table("LowI/LowIresultsnofix.txt",header=T)
+lmIfix$m<-c(0.09,0.08,0.07,0.06,0.05,0.04,0.03,0.02,0.01,0.005,0.001)
+lmIfix$ds2<-c(4.89,4.34,3.8,3.26,2.72,2.17,1.63,1.09,0.54,0.27,0.05)
+lmIfix<-lmIfix[order(lmIfix$ds2),]
+lmInofix$ds2<-c(4.89,4.34,3.8,3.26,2.72,2.17,1.63,1.09,0.54,0.27,0.05)
+lmInofix$m<-c(0.09,0.08,0.07,0.06,0.05,0.04,0.03,0.02,0.01,0.005,0.001)
+lmInofix<-lmInofix[order(lmInofix$ds2),]
+lmIDMT<-read.table("LowI/LowIDistriMtMax.txt",header=T)
+lmIDMT<-lmIDMT[order(lmIDMT$Param),]
+
+
+
+lmBDfix<-read.table("lmBD/lmBDresults.txt",header=T)
+lmBDnofix<-read.table("lmBD/lmBDresultsnofix.txt",header=T)
+lmBD<-cbind(lmBDfix[,1:4],lmBDnofix[,-c(1:4)])
+lmBD$ACross<-1
+lmBD$DispB<-round(c(1,0.15/0.05,0.05/0.15,0.19/0.01,0.01/0.19,0.199/0.001,0.001/0.199),3)
+lmBD$FitnessH<-1
+lmBD$Invasion<-0
+lmBD<-lmBD[order(lmBD$DispB),]
+lmBDDMT<-read.table("lmBD/lmBDDistriMtMax.txt",header=T)
+lmBDDMT<-lmBDDMT[order(lmBDDMT$Param),]
+
+lmBCfix<-read.table("lmBC/lmBCresults.txt",header=T)
+lmBCnofix<-read.table("lmBC/lmBCresultsnofix.txt",header=T)
+lmBC<-cbind(lmBCfix[,1:4],lmBCnofix[,-c(1:4)])
+lmBC$ACross<-c(0.9,0.8,0.7,0.6,0.5,0.4,0.3,0.2,0.1,0.01,0.001)
+lmBC$DispB<-1
+lmBC$FitnessH<-1
+lmBC$Invasion<-0
+lmBC<-rbind(lmBD["lmBD0",], lmBC)
+lmBC<-lmBC[order(lmBC$ACross),]
+lmBCDMT<-read.table("lmBC/lmBCDistriMtMax.txt",header=T)
+lmBCDMT<-rbind(lmBDDMT[which(lmBDDMT$Simul=="lmBD0"),],lmBCDMT)
+lmBCDMT<-lmBCDMT[order(lmBCDMT$Param),]
+
+lmBHfix<-read.table("lmBH/lmBHresults.txt",header=T)
+lmBHnofix<-read.table("lmBH/lmBHresultsnofix.txt",header=T)
+lmBH<-cbind(lmBHfix[,1:4],lmBHnofix[,-c(1:4)])
+lmBH$ACross<-1
+lmBH$DispB<-1
+lmBH$FitnessH<-round(c(0.5,0.09090909,2,11,0.001788909,559),digits = 3)
+lmBH$Invasion<-0
+lmBH<-rbind(lmBD["lmBD0",], lmBH)
+lmBH<-lmBH[order(lmBH$FitnessH),]
+lmBHDMT<-read.table("lmBH/lmBHDistriMtMax.txt",header=T)
+lmBHDMT<-rbind(lmBDDMT[which(lmBDDMT$Simul=="lmBD0"),],lmBHDMT)
+lmBHDMT<-lmBHDMT[order(lmBHDMT$Param),]
+
+lmBDHfix<-read.table("lmBDC/lmBDCresults.txt",header=T)
+lmBDHnofix<-read.table("lmBDC/lmBDCresultsnofix.txt",header=T)
+lmBDH<-cbind(lmBDHfix[,1:4],lmBDHnofix[,-c(1:4)])
+FitnessH<-matrix(data=rep(c(2,11,559),each=3),nrow=9,ncol=1)
+DispB<-matrix(data=rep(c(1.6,19.11,181.25),3),nrow=9,ncol=1)
+lmBDH$ACross<-1
+lmBDH$DispB<-DispB
+lmBDH$FitnessH<-FitnessH
+lmBDH$Invasion<-0
+
+
+lmBDCfix<-read.table("lmBDCC/lmBDCCresults.txt",header=T)
+lmBDCnofix<-read.table("lmBDCC/lmBDCCresultsnofix.txt",header=T)
+lmBDC<-cbind(lmBDCfix[,1:4],lmBDCnofix[,-c(1:4)])
+ACross<-matrix(data=rep(c(0.1,0.01,0.001),each=3),nrow=9,ncol=1)
+DispB<-matrix(data=rep(c(1.6,19.11,181.25),3),nrow=9,ncol=1)
+lmBDC$ACross<-ACross
+lmBDC$DispB<-DispB
+lmBDC$FitnessH<-1
+lmBDC$Invasion<-0
+
+lmBHCfix<-read.table("lmBHC/lmBHCresults.txt",header=T)
+lmBHCnofix<-read.table("lmBHC/lmBHCresultsnofix.txt",header=T)
+lmBHC<-cbind(lmBHCfix[,1:4],lmBHCnofix[,-c(1:4)])
+ACross<-matrix(data=rep(c(0.1,0.01,0.001),each=3),nrow=9,ncol=1)
+FitnessH<-matrix(data=rep(c(2,11,559),3),nrow=9,ncol=1)
+lmBHC$ACross<-ACross
+lmBHC$DispB<-1
+lmBHC$FitnessH<-FitnessH
+lmBHC$Invasion<-0
+
+lmBHCDMT<-read.table("lmBHC/lmBHCDistriMtMax.txt",header=T)
+lmBDCDMT<-read.table("lmBDC/lmBDCDistriMtMax.txt",header=T)
+lmBDCCDMT<-read.table("lmBDCC/lmBDCCDistriMtMax.txt",header=T)
+lmBHCDDMT<-read.table("lmBHCD/lmBHCDDistriMtMax.txt",header=T)
+
+lmallcombiDistriMt<-rbind(lmBDDMT[,1:3],lmBCDMT[,1:3],lmBHDMT[,1:3],lmBHCDMT,lmBDCDMT,lmBDCCDMT,lmBHCDDMT)
+lmallcombidisc<-lmallcombiDistriMt$DistriMtMax- lmallcombiDistriMt$DistriNuMtMax
+
+plot(lmallcombiDistriMt$DistriMtMax,lmallcombiDistriMt$DistriNuMtMax)
+cor(lmallcombiDistriMt$DistriMtMax,lmallcombiDistriMt$DistriNuMtMax,use = "pairwise.complete.obs")
+cor.test(lmallcombiDistriMt$DistriMtMax,lmallcombiDistriMt$DistriNuMtMax)
+
+
+lmHunfix<-read.table("lmHun/lmHunresults.txt",header=T)
+lmHunnofix<-read.table("lmHun/lmHunresultsnofix.txt",header=T)
+lmHun<-cbind(lmHunfix[,1:4],lmHunnofix[,-c(1:4)])
+lmHun$ACross<-1
+lmHun$DispB<-round(c(1,0.15/0.05,0.05/0.15,0.19/0.01,0.01/0.19,0.199/0.001,0.001/0.199),3)
+lmHun$FitnessH<-1
+lmHun$Invasion<-as.factor(1)
+lmHun<-lmHun[order(lmHun$DispB),]
+lmHunDMT<-read.table("lmHun/lmHunDistriMtMax.txt",header=T)
+
+
+lmHunSfix<-read.table("lmHunS/lmHunSresultsProfGrid.txt",header=T)
+lmHunSnofix<-read.table("lmHunS/lmHunSresultsnofixProfGrid.txt",header=T)
+lmHunS<-cbind(lmHunSfix[,1:4],lmHunSnofix[,-c(1:4,35)])
+lmHunS$ACross<-1
+lmHunS$DispB<-round(c(1,0.15/0.05,0.05/0.15,0.19/0.01,0.01/0.19,0.199/0.001,0.001/0.199),3)
+lmHunS$FitnessH<-1
+lmHunS$Invasion<-as.factor(1)
+lmHunS<-lmHunS[order(lmHunS$DispB),]
+lmHunSDMT<-read.table("lmHunS/lmHunSDistriMtMaxProfGrid.txt",header=T)
+
+lmHunSProfilefix<-read.table("lmHunS/lmHunSresultsProf.txt",header=T)
+lmHunSProfilenofix<-read.table("lmHunS/lmHunSresultsnofixProf.txt",header=T)
+lmHunPrS<-cbind(lmHunSProfilefix[,1:4],lmHunSProfilenofix[,-c(1:4,35)])
+lmHunPrS["lmHunS6",5:34]<-lmHunPrS["lmHunS4",5:34]
+lmHunPrS$ACross <- 1
+lmHunPrS$DispB<-round(c(1,0.15/0.05,0.05/0.15,0.19/0.01,0.01/0.19,0.199/0.001,0.001/0.199),3)
+lmHunPrS$FitnessH<-1
+lmHunPrS$Invasion<-as.factor(1)
+lmHunPrS<-lmHunPrS[order(lmHunPrS$DispB),]
+lmHunPrSDMT<-read.table("lmHunS/lmHunSDistriMtMaxProf.txt",header=T)
+
+
+lmMtfix<-read.table("lmMtA/lmMtAresults.txt",header=T)
+lmMtnofix<-read.table("lmMtA/lmMtAresultsnofix.txt",header=T)
+lmMt<-cbind(lmMtfix[,1:4],lmMtnofix[,-c(1:4)])
+lmMt$ACross<-1
+lmMt$DispB<-1
+lmMt$FitnessH<-1
+lmMt$Invasion<-as.factor(1)
+lmMtSDMT<-read.table("lmMtA/lmMtADistriMtMax.txt",header=T)
+lmMtTestSelection<-read.table("lmMtA/MtSelectionTests",header=T)
+lmMtTestSelectionShort<-lmMtTestSelection[,c("Param","FixMt","CopiesMtPop2","DPop2","PowSimulPop2","FSPop2","ProbSimFSPop2")]
+lmMtTestSelectionShort$disc<- rev(tapply(X = lmMtSDMT$DistriMtMax-lmMtSDMT$DistriNuMtMax,INDEX = lmMtSDMT$Param,mean))
+lmMtTestSelectionShort$autcop<- rev(tapply(X = lmMtSDMT$DistriNuMtMax,INDEX = lmMtSDMT$Param,mean))
+
+lmSynthesisTot<-rbind(lmBD,lmBC,lmBH,lmBDC,lmBDH,lmBHC,lmHun,lmHunS,lmHunPrS)
+lmSynthesis<-lmSynthesisTot[,c("NbRun","FixMt","IntAut","MaxMtI","ACross","DispB","FitnessH","Invasion")]
+@
+
+<<lmIMt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotMt(x=lmIfix,y="m",dmt=lmIDMT,xlabb="Migration rate ($m$)",transfo=identity,main="(A) Mitochondrial introgression")
+@
+
+<<lmIAut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotAut(x=lmIfix,y="m",xlabb="Migration rate ($m$)",transfo=identity,main="(B) Autosomal introgression")
+@
+
+<<lmIAutNF, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotAut(x=lmInofix,y="m",xlabb="Migration rate ($m$)",transfo=identity, main="(B) Autosomal introgression")
+@
+
+<<lmBDmt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotMt(x=lmBD,y="DispB",dmt=lmBDDMT,xlabb="Female relative dispersal ($m_{\\female} / m_{\\male})$",transfo=log, main="\\textbf{(B) Mitochondrial introgression}")
+@
+
+<<lmBDaut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotAut(x=lmBD,y="DispB",xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,main="\\textbf{(C) Autosomal introgression}")
+@
+
+<<lmBDdisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+lmBDDMT$DispB<-lmBDDMT$Param
+plotDisc(x = lmBD,y = "DispB",dmt = lmBDDMT,xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,DrawLegend = T,limX=log(c(min(lmBDDMT$Param),max(lmBDDMT$Param))),main="\\textbf{(A) Mito-nuclear discordance}")
+@
+
+
+<<lmBHmt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotMt(x=lmBH,y="FitnessH",dmt=lmBHDMT,xlabb="Female relative hybrid survival ($\\phi_{h,\\female} / \\phi_{h,\\male}$)",transfo=log, main="\\textbf{(B) Mitochondrial introgression}")
+@
+
+<<lmBHaut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotAut(x=lmBH,y="FitnessH",xlabb="Female relative hybrid survival ($\\phi_{h,\\female} / \\phi_{h,\\male}$)",transfo=log,main="\\textbf{(C) Autosomal introgression}")
+@
+
+<<lmBHdisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+lmBHDMT$FitnessH<-lmBHDMT$Param
+plotDisc(x = lmBH,y = "FitnessH",dmt = lmBHDMT,xlab="Female relative hybrid survival ($\\phi_{h,\\female} / \\phi_{h,\\male}$)",transfo=log,DrawLegend = T,limX=log(c(min(lmBHDMT$Param),max(lmBHDMT$Param))),main="\\textbf{(A) Mito-nuclear discordance}")
+@
+
+
+<<lmBCmt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotMt(x=lmBC,y="ACross",dmt=lmBCDMT,xlabb="Relative symetry of inter-taxa crosses ($\\psi$)",transfo=identity, main="\\textbf{(B) Mitochondrial introgression}")
+@
+
+<<lmBCaut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotAut(x=lmBC,y="ACross",xlabb="Relative symetry of inter-taxa crosses ($\\psi$)",transfo=identity,main="\\textbf{(C) Autosomal introgression}")
+@
+
+<<lmBCdisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+lmBCDMT$ACross<-lmBCDMT$Param
+plotDisc(x=lmBC[which(lmBC$ACross!=0.01),],y="ACross",dmt=lmBCDMT[which(lmBCDMT$Param!=0.01),],xlab="Relative symetry of inter-taxa crosses ($\\psi$)",transfo=identity,DrawLegend = T,limX=c(0,1),main="\\textbf{(A) Mito-nuclear discordance}")
+@
+
+
+<<lmallcombiDisc,dev='tikz',echo=F,fig.height=7,fig.width=9,out.width='\\textwidth',fig.align='center'>>=
+mean(lmallcombidisc>0.4,na.rm=T)
+max(lmallcombidisc,na.rm=T)
+
+par(mar=c(5,5,4,2)+0.1,cex=1.5)
+lmachist<-hist(lmallcombidisc,breaks = 50,plot = F)
+lmachist$counts<-lmachist$counts/sum(lmachist$counts)
+lmachist$counts<-log(log(1000*lmachist$counts+1)+1)
+plot(lmachist,xlim=c(-0.2,1),col=rgb(red = 1,0,0,0.3),las=1,xlab="Mito-nuclear discordance ($\\Mitochondria - \\AutCopiesIntrogressed$)",main="",yaxt="n")
+
+lmachist0<-hist(lmBDDMT$DistriMtMax[which(lmBDDMT$Simul=="lmBD0")]- lmBDDMT$DistriNuMtMax[which(lmBDDMT$Simul=="lmBD0")],breaks = 25,plot = F)
+lmachist0$counts<-lmachist0$counts/sum(lmachist0$counts)
+lmachist0$counts<-log(log(1000*lmachist0$counts+1)+1)
+
+plot(lmachist0,add=T,col=rgb(red = 0,0,1,0.3))
+abline(v=0.8,lty=2,lwd=3)
+county<-c(0,0.01,0.1,0.9)
+axis(side = 2,at = log(log(1000*county+1)+1),labels = county,las=1)
+
+legend(x = "topright",legend = c("Reference","Sex-biases"),fill=c(rgb(red = 0,0,1,0.3),rgb(red = 1,0,0,0.3)),bg = "white")
+
+@
+
+
+<<lmHunmt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotMt(x=lmHun,y="DispB",dmt=lmHunDMT,xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log)
+@
+
+<<lmHunaut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotAut(x=lmHun,y="DispB",xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log)
+@
+
+<<lmHunSmt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotMt(x=lmHunS,y="DispB",dmt=lmHunSDMT,xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,main="\\textbf{(A) Whole area, mitochondrial introgression}")
+@
+
+<<lmHunSaut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotAut(x=lmHunS,y="DispB",xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,main="\\textbf{(B) Whole area, autosomal introgression}")
+@
+
+<<lmHunSDisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+lmHunSDMT$DispB<- exp(round(lmHunSDMT$Param,digits = 6))
+plotDisc(x=lmHunS,dmt = lmHunSDMT, y="DispB",xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,limX = log(c(min(lmHunS$DispB),max(lmHunS$DispB))),main="\\textbf{(A) Whole area}")
+@
+
+
+<<lmHunPrSmt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotMt(x=lmHunPrS,y="DispB",dmt=lmHunPrSDMT,xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,main="\\textbf{(C) Invaded area, mitochondrial introgression}")
+@
+
+<<lmHunPrSaut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotAut(x=lmHunPrS,y="DispB",xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$",transfo=log,main="\\textbf{(D) Invaded area, autosomal introgression}")
+@
+
+<<lmHunPrDisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+lmHunPrSDMT$DispB<- exp(round(lmHunPrSDMT$Param,digits = 6))
+plotDisc(x=lmHunPrS,dmt = lmHunPrSDMT, y="DispB",xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,limX = log(c(min(lmHunPrS$DispB),max(lmHunPrS$DispB))),main="\\textbf{(B) Invaded area}")
+@
+
+
+
+<<tableMt, results='asis', echo=FALSE>>=
+strCaption <- paste0("")
+print(xtable(lmMtTestSelectionShort, digits=3, caption=strCaption, label="Test_table"),
+size="footnotesize", #Change size; useful for bigger tables
+include.rownames=TRUE, #Don't print rownames
+include.colnames=FALSE, #We create them ourselves
+caption.placement="top",
+hline.after=NULL, #We don't need hline; we use booktabs
+add.to.row = list(pos = list(-1,
+nrow(lmMtTestSelectionShort)),
+command = c(paste("\\toprule \n", " & $\\phi_M$ &$\\MtIttIntrogressions{=1}$ & $\\overline{\\Mitochondria}$  & $\\bar{D}$  & $\\frequency{p_D<0.05}$ & $\\bar{F_s}$ & $\\frequency{p_{F_s}<0.05}$ \\\\\n","\\midrule \n"),"\\bottomrule \n")
+)
+)
+@
+
+\end{document}
