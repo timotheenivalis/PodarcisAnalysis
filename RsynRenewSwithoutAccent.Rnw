@@ -72,8 +72,19 @@ BC$Invasion<-0
 BC<-BC[order(BC$ACross),]
 BCnofix<- BCnofix[order(BCnofix$ACross),]
 
-MultiBCfix<-read.table("HomogamyMulti/HMresults.txt",header=T)
+MultiBCfix<-read.table("HomogamyMulti/HomogamyMultiresults.txt",header=T)
+MultiBCfix$ACross <- MultiBCfix$Param
 MultiBCdistriMt<-read.table("HomogamyMulti/HomogamyMultiDistriMtMax.txt",header=T)
+MultiBCdistriMt$ACross<- MultiBCdistriMt$Param
+MultiBCdistriMt<- MultiBCdistriMt[order(MultiBCdistriMt$Param),]
+MultiBCnofix<-read.table("HomogamyMulti/HomogamyMultiresultsnofix.txt",header=T)
+MultiBCnofix$ACross <- MultiBCnofix$Param
+MultiBC<- MultiBCfix
+MultiBC$DispB<-1
+MultiBC$FitnessH<-1
+MultiBC$Invasion<-0
+MultiBC<-MultiBC[order( MultiBC$ACross),]
+BCnofix<- BCnofix[order(BCnofix$ACross),]
 
 
 BHfix<-read.table("BSH/BSHresults.txt",header=T)
@@ -118,9 +129,6 @@ BDC$ACross<-ACross
 BDC$DispB<-DispB
 BDC$FitnessH<-1
 BDC$Invasion<-0
-
-BDCMultifix <- read.table("HomogamyMulti/HMresults.txt",header=T)
-BDCMultifix <- read.table("HomogamyMulti/")
 
 BHCfix<-read.table("BSurvHomog/BSHHresults.txt",header=T)
 BHCdistriMt<-read.table("BSurvHomog/BSHHDistriMtMax.txt",header=T)
@@ -525,6 +533,10 @@ plotAut(x=BCnofix,y="ACross","Relative symmetry of inter-taxa crosses ($\\psi$)"
 
 <<BCdisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
 plotDisc(x = BC,y = "ACross",dmt = BCdistriMt,xlabb="Relative symmetry of inter-taxa crosses ($\\psi$)",transfo=identity,DrawLegend = T,limX=c(min(BCdistriMt$Param),max(BCdistriMt$Param)),main="\\textbf{(B) Asymmetric crosses between taxa}")
+@
+
+<<BCMultidisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+plotDisc(x = MultiBC,y = "ACross",dmt = MultiBCdistriMt,xlabb="Relative symmetry of inter-taxa crosses ($\\psi$)",transfo=identity,DrawLegend = T,limX=c(min(MultiBCdistriMt$Param),max(MultiBCdistriMt$Param)),main="Asymmetric crosses between taxa (20 loci for mate choice)")
 @
 
 
