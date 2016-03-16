@@ -36,8 +36,8 @@
 <<HighMigre, results='asis', echo=FALSE>>=
 library(xtable)
 #setwd("C:/Users/Thimothee Admin/Documents/external research/PodarcisCBGP/Renew simulations/")
-setwd("C:/Users/Timothée/Documents/Studies/PodarcisCBGP/New simulations/")
-source(file="C:/Users/Timothée/Documents/Studies/PodarcisCBGP/New simulations/FunctionsSimul.R")
+setwd("D:/Documents/Studies/PodarcisCBGP/New simulations/")
+source(file="D:/Documents/Studies/PodarcisCBGP/New simulations/FunctionsSimul.R")
 
 BDfix<-read.table("BDb/BDbresults.txt",header=T)
 BDdistriMt<-read.table("BDb/BDbDistriMtMax.txt",header=T)
@@ -73,6 +73,7 @@ BC<-BC[order(BC$ACross),]
 BCnofix<- BCnofix[order(BCnofix$ACross),]
 
 MultiBCfix<-read.table("HomogamyMulti/HMresults.txt",header=T)
+MultiBCdistriMt<-read.table("HomogamyMulti/HomogamyMultiDistriMtMax.txt",header=T)
 
 
 BHfix<-read.table("BSH/BSHresults.txt",header=T)
@@ -117,6 +118,9 @@ BDC$ACross<-ACross
 BDC$DispB<-DispB
 BDC$FitnessH<-1
 BDC$Invasion<-0
+
+BDCMultifix <- read.table("HomogamyMulti/HMresults.txt",header=T)
+BDCMultifix <- read.table("HomogamyMulti/")
 
 BHCfix<-read.table("BSurvHomog/BSHHresults.txt",header=T)
 BHCdistriMt<-read.table("BSurvHomog/BSHHDistriMtMax.txt",header=T)
@@ -169,7 +173,7 @@ SynthesisTot<-rbind(BD,BC,BH,BDC,BDH,BHC,Hun,HunPr)
 @
 
 <<NuclSelec, echo=FALSE>>=
-setwd("C:/Users/Timothée/Documents/Studies/PodarcisCBGP/New simulations/")
+setwd("D:/Documents/Studies/PodarcisCBGP/New simulations/")
 
 #reference
 BDref<-BDfix["BDb0",]
@@ -335,7 +339,7 @@ axis(side = 2,at = seq(-1,1,0.2),cex.axis=cexP,las=1,xpd = FALSE)
 @
 
 <<mh,echo=FALSE>>=
-mhDistriMt<-read.table(file="C:/Users/Timothée/Documents/Studies/PodarcisCBGP/New simulations/mh/mhDistriMtMax.txt",header = T)
+mhDistriMt<-read.table(file="D:/Documents/Studies/PodarcisCBGP/New simulations/mh/mhDistriMtMax.txt",header = T)
 
 hixtx<-hist(x = mhDistriMt$DistriMtMax[mhDistriMt$Param==0.3]-mhDistriMt$DistriNuMtMax[mhDistriMt$Param==0.3],breaks = 50,plot=F)
 hixtx$counts<-log(hixtx$counts+1)
@@ -556,7 +560,7 @@ plotDisc(x=HunPr,dmt = HunProfiledistriMt, y="DispB",xlabb="Female relative disp
 
 <<LM, results='asis', echo=FALSE>>=
 #setwd("C:/Users/Thimothee Admin/Documents/external research/PodarcisCBGP/Renew simulations/")
-setwd("C:/Users/Timothée/Documents/Studies/PodarcisCBGP/Renew simulations")
+setwd("D:/Documents/Studies/PodarcisCBGP/Renew simulations")
 
 lmIfix<-read.table("LowI/LowIresults.txt",header=T)
 lmInofix<-read.table("LowI/LowIresultsnofix.txt",header=T)
