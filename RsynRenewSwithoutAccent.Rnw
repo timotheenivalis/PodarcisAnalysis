@@ -730,6 +730,13 @@ plotAut(x=lmIfix,y="m",xlabb="Migration rate ($m$)",transfo=identity,main="(B) A
 plotAut(x=lmInofix,y="m",xlabb="Migration rate ($m$)",transfo=identity, main="(B) Autosomal introgression")
 @
 
+<<lmIdisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
+lmIDMT$DispB<-lmIDMT$Param
+lmInofix$DispB <- c(0.001,0.005,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09)
+plotDisc(x = lmInofix,y = "DispB",dmt = lmIDMT,xlabb="Migration rate ($m$)",transfo=identity,DrawLegend = T,limX=(c(min(lmIDMT$Param),max(lmIDMT$Param))),main="")
+@
+
+
 <<lmBDmt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
 plotMt(x=lmBD,y="DispB",dmt=lmBDDMT,xlabb="Female relative dispersal ($m_{\\female} / m_{\\male})$",transfo=log, main="\\textbf{(B) Mitochondrial introgression}")
 @
