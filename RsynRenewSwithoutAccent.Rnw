@@ -47,10 +47,12 @@ BDnofix<-read.table("BDb/BDbresultsnofix.txt",header=T)
 BD<-BDfix
 BD$ACross<-1
 BD$DispB<-round(BDfix$Param,3)
+BD$DispB[BD$DispB==0.333] <- 0.33
 BD$FitnessH<-1
 BD$Invasion<-0
 BD<-BD[order(BD$DispB),]
 BDnofix$DispB<-round(BDnofix$Param,3)
+BDnofix$DispB[BDnofix$DispB==0.333] <- 0.33
 BDnofix<- BDnofix[order(BDnofix$DispB),]
 
 BCfix<-read.table("Homogamy/Homogamyresults.txt",header=T)
@@ -157,6 +159,7 @@ HundistriMt$Param<-log(HundistriMt$Param)
 Hun<-Hunfix
 Hun$ACross<-1
 Hun$DispB<-round(Hun$Param,3)
+Hun$DispB[Hun$DispB==0.333] <- 0.33
 Hun$FitnessH<-1
 Hun$Invasion<-as.factor(1)
 Hun<-Hun[order(Hun$DispB),]
@@ -169,6 +172,7 @@ HunProfiledistriMt$Param<-log(HunProfiledistriMt$Param)
 HunPr<-HunProfilefix
 HunPr$ACross<-1
 HunPr$DispB<-round(HunPr$Param,3)
+HunPr$DispB[HunPr$DispB==0.333] <- 0.33
 HunPr$FitnessH<-1
 HunPr$Invasion<-as.factor(1)
 HunPr<-HunPr[order(HunPr$DispB),]
@@ -286,7 +290,8 @@ sd(BDDSdistriMt$DistriMtMax)
 
 
 <<ParamPlot,echo=FALSE>>=
-cexP<-1.3
+cexP<-2
+lwdP<-5
 limY<-1.3
 atLab<- seq(0,to = 1,by = 0.2)
 colMtCapt<-"black"
@@ -298,38 +303,38 @@ highBound<-"100"
 plotMt<-function(x,y,dmt,xlabb,transfo=identity,DrawLegend=TRUE,limY=1.3,main="",...){
   par(mar=c(5,4,4,2)+0.1)
   calcboxwex<-(max(transfo(x[,y]),na.rm=T)-min(transfo(x[,y]),na.rm=T))/30
-  plot(transfo(x[,y]),x$FixMt,col=colMtCapt,type="b",ylim=c(0,limY),pch=15,lwd=3,xlab=xlabb,ylab="$$",main=main,cex.lab=cexP,axes = T,xaxt="n",yaxt="n",cex=cexP)  
+  plot(transfo(x[,y]),x$FixMt,col=colMtCapt,type="b",ylim=c(0,limY),pch=15,lwd=lwdP,xlab=xlabb,ylab="$$",main=main, cex.main=cexP, cex.lab=cexP,axes = T,xaxt="n",yaxt="n",cex=cexP)  
 axis(side = 1,at = transfo(x[,y]),labels = x[,y],cex.axis=cexP)
 axis(side = 2,at = atLab,labels = atLab,cex.axis=cexP,las=1)
-boxplot(DistriMtMax~Param, at=transfo(x[,y]), data=dmt,add=T,axes=F,border=colMt,boxwex=calcboxwex,boxlwd=2,whisklwd=2,staplelwd=2,outlwd=2,medlwd=2)
-points(transfo(x[,y]),x[,"FixMt"],col=colMtCapt,type="b",pch=15,lwd=3)#to override the boxplots
+boxplot(DistriMtMax~Param, at=transfo(x[,y]), data=dmt,add=T,axes=F,border=colMt,boxwex=calcboxwex,boxlwd=lwdP,whisklwd=lwdP,staplelwd=lwdP,outlwd=lwdP,medlwd=lwdP)
+points(transfo(x[,y]),x[,"FixMt"],col=colMtCapt,type="b",pch=15,lwd=lwdP,cex=cexP)#to override the boxplots
 for (i in 1:dim(x)[2])
 {
   bound<-2*(x$FixMt[i]*(1-x$FixMt[i]))/sqrt(x$NbRun[i])
-  points(rep(transfo(x[i,y]),2),y=c(x$FixMt[i]+bound,x$FixMt[i]-bound),type="l",col=colMtCapt,lwd=2)
+  points(rep(transfo(x[i,y]),2),y=c(x$FixMt[i]+bound,x$FixMt[i]-bound),type="l",col=colMtCapt,lwd=1.3*lwdP)
 }
 if(DrawLegend==T)
-  {legend(x="topleft",legend=c("$\\MtIttIntrogressions{=1}$","$\\Mitochondria$"),col=c(colMtCapt,colMt),pch=c(15,1),lwd=c(3,2),ncol=1,pt.lwd=c(2,1.5),cex=1)}
+  {legend(x="topleft",legend=c("$\\MtIttIntrogressions{=1}$","$\\Mitochondria$"),col=c(colMtCapt,colMt),pch=c(15,1),lwd=c(3,2),ncol=1,pt.lwd=c(lwdP,lwdP),cex=cexP)}
 }
 ###########
 plotAut<-function(x,y,xlabb,transfo=identity,DrawLegend=T,limY=1.3,main="",...){
   par(mar=c(5,4,4,2)+0.1)
   calcjitter<-(max(transfo(x[,y]),na.rm=T)-min(transfo(x[,y]),na.rm=T))/coeffjitter
-plot(transfo(x[,y]),x$IntAut,col=gray(level=0.3),type="b",ylim=c(0,limY),pch=15,lwd=2,xlab=xlabb,ylab="",main=main,cex.lab=cexP,axes = T,xaxt="n",yaxt="n",cex=cexP)
+plot(transfo(x[,y])+calcjitter,x$IntAut10,col=gray(level=0.3),type="b",ylim=c(0,limY),pch=15,lwd=lwdP,xlab=xlabb,ylab="",main=main,cex.lab=cexP,cex.main=cexP,axes = T,xaxt="n",yaxt="n",cex=cexP)
 axis(side = 1,at = transfo(x[,y]),labels = x[,y],cex.axis=cexP)
 axis(side = 2,at = atLab,labels = atLab,cex.axis=cexP,las=1)
-points(transfo(x[,y])+calcjitter,x$IntAut10,col=gray(level=0.6),pch=1,lwd=2,type="b",lty=2)
-points(transfo(x[,y])+2*calcjitter,x$FixAut,col=gray(level=0.5),pch=6,lwd=2,type="b",lty=3)
-points(transfo(x[,y])-calcjitter,x$MeanExoAut,col="black",pch=18,lwd=2,type="b",lty=1)
+#points(transfo(x[,y])+calcjitter,x$IntAut10,col=gray(level=0.6),pch=1,lwd=2,type="b",lty=2)
+#points(transfo(x[,y])+2*calcjitter,x$FixAut,col=gray(level=0.5),pch=6,lwd=2,type="b",lty=3)
+points(transfo(x[,y])-calcjitter,x$MeanExoAut,col="black",pch=1,lwd=lwdP,type="b",lty=2,cex=cexP)
 for (i in 1:dim(x)[1])
 {
-  points(rep(transfo(x[i,y]),2),c(x[i,paste("Introgq",lowBound,sep="")],x[i,paste("Introgq",highBound,sep="")]),type="l",col=gray(0.3))
-  points(rep(transfo(x[i,y]),2)+calcjitter,c(x[i,paste("Introg10q",lowBound,sep="")],x[i,paste("Introg10q",highBound,sep="")]),type="l",col=gray(0.6))
-  points(rep(transfo(x[i,y]),2)+2*calcjitter,c(x[i,paste("Fixq",lowBound,sep="")],x[i,paste("Fixq",highBound,sep="")]),type="l",col=gray(0.5))
-  points(rep(transfo(x[i,y]),2)-calcjitter,c(x[i,paste("MeanExoq",lowBound,sep="")],x[i,paste("MeanExoq",highBound,sep="")]),type="l",col=gray(0.0))
+  # points(rep(transfo(x[i,y]),2),c(x[i,paste("Introgq",lowBound,sep="")],x[i,paste("Introgq",highBound,sep="")]),type="l",col=gray(0.3))
+  points(rep(transfo(x[i,y]),2)+calcjitter,c(x[i,paste("Introg10q",lowBound,sep="")],x[i,paste("Introg10q",highBound,sep="")]),type="l",col=gray(0.3),lwd=lwdP)
+  # points(rep(transfo(x[i,y]),2)+2*calcjitter,c(x[i,paste("Fixq",lowBound,sep="")],x[i,paste("Fixq",highBound,sep="")]),type="l",col=gray(0.5))
+  points(rep(transfo(x[i,y]),2)-calcjitter,c(x[i,paste("MeanExoq",lowBound,sep="")],x[i,paste("MeanExoq",highBound,sep="")]),type="l",col=gray(0.0),lwd=lwdP)
 }
 if (DrawLegend==T)
-{legend(x="topleft",legend=c("$\\AutLociIntrogressed{>0}$","$\\AutLociIntrogressed{>0.1}$","$\\AutLociIntrogressed{=1}$","$\\AutCopiesIntrogressed$"),col=c(gray(level=0.3),gray(level=0.6),gray(level=0.5),"black"),pch=c(15,1,6,18),lty=c(1,2,3,1),ncol=1,pt.lwd=2,lwd=2,cex=1)  }
+{legend(x="topleft",legend=c("$\\AutLociIntrogressed{>0.1}$","$\\AutCopiesIntrogressed$"),col=c(gray(level=0.3),"black"),pch=c(15,1),lty=c(1,2),ncol=1,pt.lwd=lwdP,lwd=lwdP,cex=cexP)  }
 }
 
 plotDisc<-function(x,y,dmt,xlabb,transfo=identity,DrawLegend=TRUE,limY=1.3,limX=c(0,1),main="",...){
@@ -337,8 +342,8 @@ plotDisc<-function(x,y,dmt,xlabb,transfo=identity,DrawLegend=TRUE,limY=1.3,limX=
   dmt$Param<-dmt[,y]
   dmt$disc<-dmt$DistriMtMax-dmt$DistriNuMtMax
   calcboxwex<-(max(transfo(x[,y]),na.rm=T)-min(transfo(x[,y]),na.rm=T))/30
-  boxplot(disc~Param,data=dmt,axes=T,xaxt="n",yaxt="n",at=sort(transfo(x[,y])),boxwex=calcboxwex,border=colMt,boxlwd=2,whisklwd=2,staplelwd=2,outlwd=2,medlwd=2,xlim=limX,xlab=xlabb,ylab="",cex.lab=cexP,las=1,cex.axis=cexP,ylim=c(min(dmt$disc,na.rm = TRUE),1),main=main)
-abline(h = 0.8,col=gray(level = 0.5),lwd=3,lty=2)
+  boxplot(disc~Param,data=dmt,axes=T,xaxt="n",yaxt="n",at=sort(transfo(x[,y])),boxwex=calcboxwex,border=colMt,boxlwd=lwdP,whisklwd=lwdP,staplelwd=lwdP,outlwd=lwdP,medlwd=lwdP,xlim=limX,xlab=xlabb,ylab="",cex.lab=cexP,las=1,cex.axis=cexP,ylim=c(min(dmt$disc,na.rm = TRUE),1),main=main,cex.main=cexP)
+abline(h = 0.8,col=gray(level = 0.5),lwd=lwdP,lty=2)
   mtext("\\textbf{Mito-nuclear discordance}",side=2,line=3.2,cex=cexP)
 axis(side = 1,at = transfo(x[,y]),labels = x[,y],cex.axis=cexP,xpd = TRUE)
 axis(side = 2,at = seq(-1,1,0.2),cex.axis=cexP,las=1,xpd = FALSE)
@@ -447,7 +452,7 @@ limY<-c(-0.55,1)
   dmt$Param<-dmt[,y]
   dmt$disc<-dmt$DistriMtMax-dmt$DistriNuMtMax
   calcboxwex<-6
-  boxplot(disc~Param,data=dmt,axes=T,xaxt="n",at=transfo(x[,y]),boxwex=calcboxwex,border=colMt,boxlwd=2,whisklwd=2,staplelwd=2,outlwd=2,medlwd=2,xlim=limX,xlab=xlabb,ylab="",cex.lab=cexP*1.2,las=1,cex.axis=cexP*1.2,ylim=limY,main="\\textbf{(A)}")
+  boxplot(disc~Param,data=dmt,axes=T,xaxt="n",at=transfo(x[,y]),boxwex=calcboxwex,border=colMt,boxlwd=2,whisklwd=2,staplelwd=2,outlwd=2,medlwd=2,xlim=limX,xlab=xlabb,ylab="",cex.lab=cexP*1.2,las=1,cex.axis=cexP*1.2,ylim=limY,main="\\textbf{(A)}",cex.main=cexP)
 abline(h = 0.8,col=gray(level = 0.5),lwd=3,lty=2)
   mtext("\\textbf{Mito-nuclear discordance}",side=2,line=3.2,cex=cexP,las=0)
 axis(side = 1,at = transfo(x[,y]),labels = x[,y],cex.axis=cexP*1.2,xpd = TRUE)
@@ -463,7 +468,7 @@ limX=log(0.0001+c(0,1))-c(1,0)
 calcboxwex<- 0.9
   dmt$Param<-dmt[,y]
   dmt$disc<-dmt$DistriMtMax-dmt$DistriNuMtMax
-  boxplot(disc~Param,data=dmt,axes=T,yaxt="n",xaxt="n",at=transfo(x[,y]),boxwex=calcboxwex,border=colMt,boxlwd=2,whisklwd=2,staplelwd=2,outlwd=2,medlwd=2,xlim=limX,xlab=xlabb,ylab="",cex.lab=cexP*1.2,las=1,cex.axis=cexP*1.2,ylim=limY,main="\\textbf{(B)}")
+  boxplot(disc~Param,data=dmt,axes=T,yaxt="n",xaxt="n",at=transfo(x[,y]),boxwex=calcboxwex,border=colMt,boxlwd=2,whisklwd=2,staplelwd=2,outlwd=2,medlwd=2,xlim=limX,xlab=xlabb,ylab="",cex.lab=cexP*1.2,las=1,cex.axis=cexP*1.2,ylim=limY,main="\\textbf{(B)}",cex.main=cexP)
 abline(h = 0.8,col=gray(level = 0.5),lwd=3,lty=2)
 axis(side = 1,at = transfo(x[,y]),labels = x[,y]*40,cex.axis=cexP*1.2,xpd = TRUE)
 axis(side=2,at = c(-0.5,0,0.5,1),labels=NA)
@@ -478,7 +483,7 @@ limX=c(min(TotSel$Ts),max(TotSel$Ts))+c(-0.1,0.1)
 calcboxwex<-0.125
   dmt$Param<-dmt[,y]
   dmt$disc<-dmt$DistriMtMax-dmt$DistriNuMtMax
-  boxplot(disc~Param,data=dmt,axes=T,yaxt="n",xaxt="n",at=sort(transfo(x[,y])),boxwex=calcboxwex,border=colMt,boxlwd=2,whisklwd=2,staplelwd=2,outlwd=2,medlwd=2,xlim=limX,xlab=xlabb,ylab="",cex.lab=cexP*1.2,las=1,cex.axis=cexP*1.2,ylim=limY,main="\\textbf{(C)}")
+  boxplot(disc~Param,data=dmt,axes=T,yaxt="n",xaxt="n",at=sort(transfo(x[,y])),boxwex=calcboxwex,border=colMt,boxlwd=2,whisklwd=2,staplelwd=2,outlwd=2,medlwd=2,xlim=limX,xlab=xlabb,ylab="",cex.lab=cexP*1.2,las=1,cex.axis=cexP*1.2,ylim=limY,main="\\textbf{(C)}",cex.main=cexP)
 abline(h = 0.8,col=gray(level = 0.5),lwd=3,lty=2)
 axis(side = 1,at = transfo(x[,y]),labels = x[,y],cex.axis=cexP*1.2,xpd = TRUE)
 axis(side=2,at = c(-0.5,0,0.5,1),labels=NA)
@@ -507,7 +512,7 @@ plotMt(x=BH,y="FitnessH",dmt=BHdistriMt,xlabb="Female relative hybrid survival (
 @
 
 <<BHaut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotAut(x=BH,y="FitnessH","Female relative hybrid survival ($\\phi_{h,\\female} / \\phi_{h,\\male}$)",transfo=log)
+plotAut(x=BH,y="FitnessH","Female relative hybrid survival ($\\phi_{h,\\female} / \\phi_{h,\\male}$)",transfo=log, main="\\textbf{(B) Autosomal introgression}")
 @
 
 <<BHautFNF, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
@@ -592,6 +597,7 @@ lmBDnofix<-read.table("lmBD/lmBDresultsnofix.txt",header=T)
 lmBD<-cbind(lmBDfix[,1:4],lmBDnofix[,-c(1:4)])
 lmBD$ACross<-1
 lmBD$DispB<-round(c(1,0.15/0.05,0.05/0.15,0.19/0.01,0.01/0.19,0.199/0.001,0.001/0.199),3)
+lmBD$DispB[lmBD$DispB==0.333] <- 0.33
 lmBD$FitnessH<-1
 lmBD$Invasion<-0
 lmBD<-lmBD[order(lmBD$DispB),]
@@ -673,6 +679,7 @@ lmHunnofix<-read.table("lmHun/lmHunresultsnofix.txt",header=T)
 lmHun<-cbind(lmHunfix[,1:4],lmHunnofix[,-c(1:4)])
 lmHun$ACross<-1
 lmHun$DispB<-round(c(1,0.15/0.05,0.05/0.15,0.19/0.01,0.01/0.19,0.199/0.001,0.001/0.199),3)
+lmHun$DispB[lmHun$DispB==0.333] <- 0.33
 lmHun$FitnessH<-1
 lmHun$Invasion<-as.factor(1)
 lmHun<-lmHun[order(lmHun$DispB),]
@@ -684,6 +691,7 @@ lmHunSnofix<-read.table("lmHunS/lmHunSresultsnofixProfGrid.txt",header=T)
 lmHunS<-cbind(lmHunSfix[,1:4],lmHunSnofix[,-c(1:4,35)])
 lmHunS$ACross<-1
 lmHunS$DispB<-round(c(1,0.15/0.05,0.05/0.15,0.19/0.01,0.01/0.19,0.199/0.001,0.001/0.199),3)
+lmHunS$DispB[lmHunS$DispB==0.333] <- 0.33
 lmHunS$FitnessH<-1
 lmHunS$Invasion<-as.factor(1)
 lmHunS<-lmHunS[order(lmHunS$DispB),]
@@ -695,6 +703,7 @@ lmHunPrS<-cbind(lmHunSProfilefix[,1:4],lmHunSProfilenofix[,-c(1:4,35)])
 lmHunPrS["lmHunS6",5:34]<-lmHunPrS["lmHunS4",5:34]
 lmHunPrS$ACross <- 1
 lmHunPrS$DispB<-round(c(1,0.15/0.05,0.05/0.15,0.19/0.01,0.01/0.19,0.199/0.001,0.001/0.199),3)
+lmHunPrS$DispB[lmHunPrS$DispB==0.333] <- 0.33
 lmHunPrS$FitnessH<-1
 lmHunPrS$Invasion<-as.factor(1)
 lmHunPrS<-lmHunPrS[order(lmHunPrS$DispB),]
@@ -826,16 +835,16 @@ plotDisc(x=lmHunS,dmt = lmHunSDMT, y="DispB",xlabb="Female relative dispersal ($
 
 
 <<lmHunPrSmt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotMt(x=lmHunPrS,y="DispB",dmt=lmHunPrSDMT,xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,main="\\textbf{(C) Invaded area, mitochondrial introgression}")
+plotMt(x=lmHunPrS,y="DispB",dmt=lmHunPrSDMT,xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,main="\\textbf{(A) Invaded area, mitochondrial introgression}")
 @
 
 <<lmHunPrSaut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotAut(x=lmHunPrS,y="DispB",xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$",transfo=log,main="\\textbf{(D) Invaded area, autosomal introgression}")
+plotAut(x=lmHunPrS,y="DispB",xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$",transfo=log,main="\\textbf{(B) Invaded area, autosomal introgression}")
 @
 
 <<lmHunPrDisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
 lmHunPrSDMT$DispB<- exp(round(lmHunPrSDMT$Param,digits = 6))
-plotDisc(x=lmHunPrS,dmt = lmHunPrSDMT, y="DispB",xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,limX = log(c(min(lmHunPrS$DispB),max(lmHunPrS$DispB))),main="\\textbf{(B) Invaded area}")
+plotDisc(x=lmHunPrS,dmt = lmHunPrSDMT, y="DispB",xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,limX = log(c(min(lmHunPrS$DispB),max(lmHunPrS$DispB))),main="")
 @
 
 
