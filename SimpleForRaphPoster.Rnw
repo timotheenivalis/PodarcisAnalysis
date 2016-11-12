@@ -361,82 +361,17 @@ hixty<-hist(x = mhDistriMt$DistriMtMax[mhDistriMt$Param==0.9]-mhDistriMt$DistriN
 hixty$counts<-log(hixty$counts+1)
 @
 
-<<mhDisc,dev='tikz',echo=F,fig.height=7,fig.width=9,out.width='\\textwidth',fig.align='center'>>=
-par(mar=c(5,5,4,2)+0.1,cex=1.5)
-plot(hixtx,xlim=c(-0.3,1),col=rgb(red = 1,0,0,0.3),yaxt="n",xlab="Mito-nuclear discordance ($\\Mitochondria - \\AutCopiesIntrogressed$)",main="", ylab= "Discordance frequency")
-plot(hixty,add=T,col=rgb(red = 0,0,1,0.3))
-abline(v=0.8,lty=2,lwd=3)
-county<-c(0,1,10,100,1000)
-axis(side = 2,at = log(county+1),labels = county/1000,las=1)
-legend(x = "topright",legend = c("$\\phi_{h}=0.9$","$\\phi_{h}=0.3$"),fill=c(rgb(red = 0,0,1,0.3),rgb(red = 1,0,0,0.3)),bg = "white")
-@
-
 <<allcombiDisc,dev='tikz',echo=F,fig.height=7,fig.width=9,out.width='\\textwidth',fig.align='center'>>=
 allcombidisc<-allcombiDistriMt$DistriMtMax- allcombiDistriMt$DistriNuMtMax
 par(mar=c(5,5,4,2)+0.1,cex=2)
 achist<-hist(allcombidisc,breaks=50,plot = F)
 achist$counts<-achist$counts/sum(achist$counts)
-plot(achist,xlim=c(-0.5,1),col=gray(level = 0.5),las=1,xlab="Mito-nuclear discordance ($\\Mitochondria - \\AutCopiesIntrogressed$)",main="", ylab= "Discordance frequency")
+plot(achist,xlim=c(-0.5,1),col=gray(level = 0.5),las=1,xlab="Mito-nuclear discordance ($\\Mitochondria - \\AutCopiesIntrogressed$)",main="\\textbf{All sex-biases combined (high dispersal)}", ylab= "Discordance frequency")
 abline(v=0.8,lty=2,lwd=3)
 
 @
 
-%' 
-%' <<NuNbLMt,dev='tikz',echo=F,out.width='\\textwidth',fig.align='center'>>=
-%' NuclSdistriMt$Param<-NuclSdistriMt$NbL
-%' plotMt(x=NuclS[which(NuclS$Neu==0.5 & NuclS$R==0.5 & NuclS$TS==0.9),],y="NbL",dmt=NuclSdistriMt,xlabb="Number of local adaptation loci",transfo=identity)
-%' @
-%' 
-%' <<NuNbLAut,dev='tikz',echo=F,out.width='\\textwidth',fig.align='center'>>=
-%' plotAut(x=NuclS[which(NuclS$Neu==0.5 & NuclS$R==0.5 & NuclS$TS==0.9),],y="NbL",xlabb="Number of local adaptation loci",transfo=identity)
-%' @
-%' 
-%' <<NuNbLDisc,dev='tikz',echo=F,out.width='\\textwidth',fig.align='center'>>=
-%' plotDisc(x=NuclS[which(NuclS$Neu==0.5 & NuclS$R==0.5 & NuclS$TS==0.9),],dmt = NuclSdistriMt[which(NuclSdistriMt$Neu==0.5 & NuclSdistriMt$R==0.5 & NuclSdistriMt$TS==0.9),],y="NbL",xlabb="Number of local adaptation loci",transfo=identity,limX = c(min(NuclS$NbL), max(NuclS$NbL)))
-%' NuclS[which(NuclS$Neu==0.5 & NuclS$R==0.5 & NuclS$TS==0.9),]
-%' 
-%'  boxplot(DistriMtMax~ NbL,data=NuclSdistriMt[which(NuclSdistriMt$Neu==0.5 & NuclSdistriMt$R==0.5 & NuclSdistriMt$TS==0.9),])
-%'  boxplot(DistriNuMtMax~ NbL,data=NuclSdistriMt[which(NuclSdistriMt$Neu==0.5 & NuclSdistriMt$R==0.5 & NuclSdistriMt$TS==0.9),])
-%'  
-%' @
-%' 
-%' 
-%' <<NeuMt,dev='tikz',echo=F,out.width='\\textwidth',fig.align='center'>>=
-%' NuclSdistriMt$Param<-NuclSdistriMt$Neu
-%' plotMt(x=NuclS[which(NuclS$NbL==20 & NuclS$R==0.5 & NuclS$TS==0.9),],y="Neu",dmt=NuclSdistriMt,xlabb="Intra pair recombination rate",transfo=identity)
-%' @
-%' 
-%' <<NeuAut,dev='tikz',echo=F,out.width='\\textwidth',fig.align='center'>>=
-%' plotAut(x=NuclS[which(NuclS$NbL==20 & NuclS$R==0.5 & NuclS$TS==0.9),],y="Neu",xlabb="Intra pair recombination rate",transfo=identity)
-%' @
-%' 
-%' <<NeuDisc,dev='tikz',echo=F,out.width='\\textwidth',fig.align='center'>>=
-%' plotDisc(x=NuclS[which(NuclS$NbL==20 & NuclS$R==0.5 & NuclS$TS==0.9),],dmt = NuclSdistriMt,y="Neu",xlabb="Intra pair recombination rate",transfo=identity,limX = c(min(NuclS$Neu), max(NuclS$Neu)))
-%' @
-%' 
-%' <<RecAut, dev='tikz',echo=F,out.width='\\textwidth',fig.align='center'>>=
-%' plotAut(x=Rec,y="r",xlabb="Recombination rate",transfo=function(a){log(a+0.0001)})
-%' @
-%' 
-%' <<RecMt, dev='tikz',echo=F,out.width='\\textwidth',fig.align='center'>>=
-%' RecdistriMt$Param<-RecdistriMt$r
-%' plotMt(x=Rec,dmt=RecdistriMt,y="r",xlabb="Recombination rate",transfo=function(a){log(a+0.0001)})
-%' 
-%' @
-%' 
-%' <<RecDisc,dev='tikz',echo=F,out.width='\\textwidth',fig.align='center'>>=
-%' plotDisc(x=Rec,dmt = RecdistriMt ,y="r",xlabb="Recombination rate",transfo=function(a){log(a+0.0001)},limX=log(0.0001+c(0,1)))
-%' @
-%' 
-%' <<TsAut, dev='tikz',echo=F,out.width='\\textwidth',fig.align='center'>>=
-%' plotAut(x=TotSel,y="Ts",xlabb="Autosomal selection",transfo=identity)
-%' @
-%' 
-%' <<TsDisc,dev='tikz',echo=F,out.width='\\textwidth',fig.align='center'>>=
-%' plotDisc(x=TotSel,dmt =TotSelDistriMt ,y="Ts",xlabb="Autosomal selection",transfo=identity,limX=c(min(TotSel$Ts),max(TotSel$Ts)))
-%' @
-%' 
-All nuclear selection together:
+
 
 <<AllNuclSelDisc, dev='tikz',echo=F,fig.height=6,fig.width=9,out.width='\\textwidth',fig.align='center'>>=
 cexP<-2.2
@@ -452,8 +387,11 @@ boxr <- 20
 
   par(layout(mat=matrix(1:3,nrow = 1,byrow=TRUE),widths = c(2,3,2.5)),las=1)  
 limY<-c(-0.55,1)
+
+highmar <- 6
+
   #1
-  par(mar=c(5,6.2,2,0)+0.1)
+  par(mar=c(5,6.2,highmar,0)+0.1)
   x=NuclS[which(NuclS$Neu==0.5 & NuclS$R==0.5 & NuclS$TS==0.9),]
   dmt = NuclSdistriMt[which(NuclSdistriMt$Neu==0.5 & NuclSdistriMt$R==0.5 & NuclSdistriMt$TS==0.9),]
   y="NbL"
@@ -470,7 +408,7 @@ abline(h = 0.8,col=gray(level = 0.5),lwd=3,lty=2)
 axis(side = 1,at = transfo(x[,y]),labels = x[,y],cex.axis=cexP*1.2,xpd = TRUE)
 
 #2
-par(mar=c(5,2,2,0)+0.1)
+par(mar=c(5,2,highmar,0)+0.1)
 x=Rec
 dmt = RecdistriMt 
 y="r"
@@ -485,7 +423,7 @@ abline(h = 0.8,col=gray(level = 0.5),lwd=3,lty=2)
 axis(side = 1,at = transfo(x[,y]),labels = x[,y]*40,cex.axis=cexP*1.2,xpd = TRUE)
 axis(side=2,at = c(-0.5,0,0.5,1),labels=NA)
 #3
-par(mar=c(5,2,2,2)+0.1)
+par(mar=c(5,2,highmar,2)+0.1)
 x=TotSel
 dmt =TotSelDistriMt 
 y="Ts"
@@ -499,96 +437,20 @@ calcboxwex<-0.125
 abline(h = 0.8,col=gray(level = 0.5),lwd=3,lty=2)
 axis(side = 1,at = transfo(x[,y]),labels = x[,y],cex.axis=cexP*1.2,xpd = TRUE)
 axis(side=2,at = c(-0.5,0,0.5,1),labels=NA)
-@
 
-<<BDmt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotMt(x=BD,y="DispB",dmt=BDdistriMt,xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,main="\\textbf{(B) Mitochondrial introgression}")
-@
-
-%' 
-%' <<BDaut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-%' plotAut(x=BD,y="DispB","Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log, main="\\textbf{(C) Autosomal introgression}")
-%' @
-%' 
-
-<<BDautFNF, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotAut(x=BDnofix,y="DispB","Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log, main="\\textbf{(C) Autosomal introgression}")
+# title
+mtext("\\textbf{Nuclear counter-selection and recombinaison (high dispersal)}", side=3, line=-2, outer=TRUE, cex=2)
 @
 
 
 <<BDdisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotDisc(x = BD,y = "DispB",dmt = BDdistriMt,xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,DrawLegend = T,limX=log(c(min(BDdistriMt$Param),max(BDdistriMt$Param))), main="\\textbf{(A) Mito-nuclear discordance}")
+plotDisc(x = BD,y = "DispB",dmt = BDdistriMt,xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,DrawLegend = T,limX=log(c(min(BDdistriMt$Param),max(BDdistriMt$Param))), main="\\textbf{Sex-biased dispersal (high dispersal)}")
 @
 
-
-<<BHmt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotMt(x=BH,y="FitnessH",dmt=BHdistriMt,xlabb="Female relative hybrid survival ($\\phi_{h,\\female} / \\phi_{h,\\male}$)",transfo=log, main="\\textbf{(A) Mitochondrial introgression}")
-@
-%' 
-%' <<BHaut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-%' plotAut(x=BH,y="FitnessH","Female relative hybrid survival ($\\phi_{h,\\female} / \\phi_{h,\\male}$)",transfo=log, main="\\textbf{(B) Autosomal introgression}")
-%' @
-%' 
-
-<<BHautFNF, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotAut(x=BHnofix,y="FitnessH","Female relative hybrid survival ($\\phi_{h,\\female} / \\phi_{h,\\male}$)",transfo=log, main="\\textbf{(B) Autosomal introgression}",limX=(c(min(BHdistriMt$Param),max(BHdistriMt$Param))))
-@
-
-
-<<BHdisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotDisc(x = BH,y = "FitnessH",dmt = BHdistriMt,xlabb="Female relative hybrid survival ($\\phi_{h,\\female} / \\phi_{h,\\male}$)",transfo=log,DrawLegend = T,limX=(c(min(BHdistriMt$Param),max(BHdistriMt$Param))),main="\\textbf{(A) Sex-biased hybrid fitness}")
-@
-
-<<BCmt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotMt(x=BC,y="ACross",dmt=BCdistriMt,xlabb="Relative symmetry of inter-taxa crosses ($\\psi$)",main="\\textbf{(A) Mitochondrial introgression}")
-@
-%' 
-%' <<BCaut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-%' plotAut(x=BC,y="ACross","Relative symmetry of inter-taxa crosses ($\\psi$)",transfo=identity,main="\\textbf{(B) Autosomal introgression}")
-%' @
-%' 
-
-<<BCautFNF, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotAut(x=BCnofix,y="ACross","Relative symmetry of inter-taxa crosses ($\\psi$)",transfo=identity, main="\\textbf{(B) Autosomal introgression}",limX=(c(min(BCdistriMt$Param),max(BCdistriMt$Param))))
-@
-
-
-<<BCdisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotDisc(x = BC,y = "ACross",dmt = BCdistriMt,xlabb="Relative symmetry of inter-taxa crosses ($\\psi$)",transfo=identity,DrawLegend = T,limX=c(min(BCdistriMt$Param),max(BCdistriMt$Param)),main="\\textbf{(B) Asymmetric crosses between taxa}")
-@
-
-<<BCMultidisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotDisc(x = MultiBC,y = "ACross",dmt = MultiBCdistriMt,xlabb="Relative symmetry of inter-taxa crosses ($\\psi$)",transfo=identity,DrawLegend = T,limX=c(min(MultiBCdistriMt$Param),max(MultiBCdistriMt$Param)),main="Asymmetric crosses between taxa (20 loci for mate choice)")
-@
-
-%' 
-%' <<Hunmt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-%' HundistriMt$Param<-round(HundistriMt$Param,digits = 6)
-%' HundistriMt$DispB<- exp(HundistriMt$Param)
-%' plotMt(x=Hun,y="DispB",dmt=HundistriMt,xlabb="$m_{\\female} / m_{\\male}$",transfo=log)
-%' @
-%' 
-%' <<Hunaut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-%' plotAut(x=Hun,y="DispB","$m_{\\female} / m_{\\male}$",transfo=log)
-%' @
-%' 
-%' <<HunDisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-%' HundistriMt$DispB<- exp(round(HundistriMt$Param,digits = 6))
-%' plotDisc(x=Hun,dmt = HundistriMt, y="DispB",xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,limX = log(c(min(Hun$DispB),max(Hun$DispB))),main="\\textbf{(A) Whole area}")
-%' @
-
-
-<<HunPrmt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotMt(x=HunPr,y="DispB",dmt=HunProfiledistriMt,xlabb="$m_{\\female} / m_{\\male}$",transfo=log)
-@
-
-<<HunPraut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotAut(x=HunPr,y="DispB","$m_{\\female} / m_{\\male}$",transfo=log)
-@
 
 <<HunPrDisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
 HunProfiledistriMt$DispB<- exp(round(HunProfiledistriMt$Param,digits = 6))
-plotDisc(x=HunPr,dmt = HunProfiledistriMt, y="DispB",xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,limX = log(c(min(HunPr$DispB),max(HunPr$DispB))),main="\\textbf{(B) Invaded area}")
+plotDisc(x=HunPr,dmt = HunProfiledistriMt, y="DispB",xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,limX = log(c(min(HunPr$DispB),max(HunPr$DispB))),main="\\textbf{Spatial invasion  (high dispersal)}")
 @
 
 
@@ -744,66 +606,9 @@ lmSynthesisTot<-rbind(lmBD,lmBC,lmBH,lmBDC,lmBDH,lmBHC,lmHun,lmHunS,lmHunPrS)
 lmSynthesis<-lmSynthesisTot[,c("NbRun","FixMt","IntAut","MaxMtI","ACross","DispB","FitnessH","Invasion")]
 @
 
-<<lmIMt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotMt(x=lmIfix,y="m",dmt=lmIDMT,xlabb="Migration rate ($m$)",transfo=identity,main="(A) Mitochondrial introgression")
-@
-
-%' 
-%' <<lmIAut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-%' plotAut(x=lmIfix,y="m",xlabb="Migration rate ($m$)",transfo=identity,main="(B) Autosomal introgression")
-%' @
-
-
-<<lmIAutNF, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotAut(x=lmInofix,y="m",xlabb="Migration rate ($m$)",transfo=identity, main="(B) Autosomal introgression")
-@
-
-<<lmIdisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-lmIDMT$DispB<-lmIDMT$Param
-lmInofix$DispB <- c(0.001,0.005,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09)
-plotDisc(x = lmInofix,y = "DispB",dmt = lmIDMT,xlabb="Migration rate ($m$)",transfo=identity,DrawLegend = T,limX=(c(min(lmIDMT$Param),max(lmIDMT$Param))),main="(C) Mito-nuclear discordance")
-@
-
-
-<<lmBDmt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotMt(x=lmBD,y="DispB",dmt=lmBDDMT,xlabb="Female relative dispersal ($m_{\\female} / m_{\\male})$",transfo=log, main="\\textbf{(B) Mitochondrial introgression}")
-@
-
-<<lmBDaut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotAut(x=lmBD,y="DispB",xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,main="\\textbf{(C) Autosomal introgression}")
-@
-
 <<lmBDdisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
 lmBDDMT$DispB<-lmBDDMT$Param
-plotDisc(x = lmBD,y = "DispB",dmt = lmBDDMT,xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,DrawLegend = T,limX=log(c(min(lmBDDMT$Param),max(lmBDDMT$Param))),main="\\textbf{(A) Mito-nuclear discordance}")
-@
-
-
-<<lmBHmt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotMt(x=lmBH,y="FitnessH",dmt=lmBHDMT,xlabb="Female relative hybrid survival ($\\phi_{h,\\female} / \\phi_{h,\\male}$)",transfo=log, main="\\textbf{(B) Mitochondrial introgression}")
-@
-
-<<lmBHaut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotAut(x=lmBH,y="FitnessH",xlabb="Female relative hybrid survival ($\\phi_{h,\\female} / \\phi_{h,\\male}$)",transfo=log,main="\\textbf{(C) Autosomal introgression}")
-@
-
-<<lmBHdisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-lmBHDMT$FitnessH<-lmBHDMT$Param
-plotDisc(x = lmBH,y = "FitnessH",dmt = lmBHDMT,xlab="Female relative hybrid survival ($\\phi_{h,\\female} / \\phi_{h,\\male}$)",transfo=log,DrawLegend = T,limX=log(c(min(lmBHDMT$Param),max(lmBHDMT$Param))),main="\\textbf{(A) Mito-nuclear discordance}")
-@
-
-
-<<lmBCmt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotMt(x=lmBC,y="ACross",dmt=lmBCDMT,xlabb="Relative symetry of inter-taxa crosses ($\\psi$)",transfo=identity, main="\\textbf{(B) Mitochondrial introgression}")
-@
-
-<<lmBCaut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotAut(x=lmBC,y="ACross",xlabb="Relative symetry of inter-taxa crosses ($\\psi$)",transfo=identity,main="\\textbf{(C) Autosomal introgression}")
-@
-
-<<lmBCdisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-lmBCDMT$ACross<-lmBCDMT$Param
-plotDisc(x=lmBC[which(lmBC$ACross!=0.01),],y="ACross",dmt=lmBCDMT[which(lmBCDMT$Param!=0.01),],xlab="Relative symetry of inter-taxa crosses ($\\psi$)",transfo=identity,DrawLegend = T,limX=c(0,1),main="\\textbf{(A) Mito-nuclear discordance}")
+plotDisc(x = lmBD,y = "DispB",dmt = lmBDDMT,xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,DrawLegend = T,limX=log(c(min(lmBDDMT$Param),max(lmBDDMT$Param))),main="\\textbf{Sex-biased dispersal (low dispersal)}")
 @
 
 
@@ -815,7 +620,7 @@ par(mar=c(5,5,4,2)+0.1,cex=2)
 lmachist<-hist(lmallcombidisc,breaks = 50,plot = F)
 lmachist$counts<-lmachist$counts/sum(lmachist$counts)
 lmachist$counts<-log(log(1000*lmachist$counts+1)+1)
-plot(lmachist,xlim=c(-0.2,1),col=rgb(red = 1,0,0,0.3),las=1,xlab="Mito-nuclear discordance ($\\Mitochondria - \\AutCopiesIntrogressed$)",main="",yaxt="n", ylab= "Discordance frequency")
+plot(lmachist,xlim=c(-0.2,1),col=rgb(red = 1,0,0,0.3),las=1,xlab="Mito-nuclear discordance ($\\Mitochondria - \\AutCopiesIntrogressed$)",main="All sex-biases combined (low dispersal)",yaxt="n", ylab= "Discordance frequency")
 
 lmachist0<-hist(lmBDDMT$DistriMtMax[which(lmBDDMT$Simul=="lmBD0")]- lmBDDMT$DistriNuMtMax[which(lmBDDMT$Simul=="lmBD0")],breaks = 25,plot = F)
 lmachist0$counts<-lmachist0$counts/sum(lmachist0$counts)
@@ -828,59 +633,6 @@ axis(side = 2,at = log(log(1000*county+1)+1),labels = county,las=1)
 
 legend(x = "topright",legend = c("Reference","All sex-biases combined"),fill=c(rgb(red = 0,0,1,0.3),rgb(red = 1,0,0,0.3)),bg = "white")
 
-@
-
-%' 
-%' <<lmHunmt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-%' plotMt(x=lmHun,y="DispB",dmt=lmHunDMT,xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log)
-%' @
-%' 
-%' <<lmHunaut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-%' plotAut(x=lmHun,y="DispB",xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log)
-%' @
-%' 
-%' <<lmHunSmt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-%' plotMt(x=lmHunS,y="DispB",dmt=lmHunSDMT,xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,main="\\textbf{(A) Whole area, mitochondrial introgression}")
-%' @
-%' 
-%' <<lmHunSaut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-%' plotAut(x=lmHunS,y="DispB",xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,main="\\textbf{(B) Whole area, autosomal introgression}")
-%' @
-%' 
-%' <<lmHunSDisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-%' lmHunSDMT$DispB<- exp(round(lmHunSDMT$Param,digits = 6))
-%' plotDisc(x=lmHunS,dmt = lmHunSDMT, y="DispB",xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,limX = log(c(min(lmHunS$DispB),max(lmHunS$DispB))),main="\\textbf{(A) Whole area}")
-%' @
-
-
-<<lmHunPrSmt, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotMt(x=lmHunPrS,y="DispB",dmt=lmHunPrSDMT,xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,main="\\textbf{(A) Invaded area, mitochondrial introgression}")
-@
-
-<<lmHunPrSaut, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-plotAut(x=lmHunPrS,y="DispB",xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$",transfo=log,main="\\textbf{(B) Invaded area, autosomal introgression}")
-@
-
-<<lmHunPrDisc, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center'>>=
-lmHunPrSDMT$DispB<- exp(round(lmHunPrSDMT$Param,digits = 6))
-plotDisc(x=lmHunPrS,dmt = lmHunPrSDMT, y="DispB",xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,limX = log(c(min(lmHunPrS$DispB),max(lmHunPrS$DispB))),main="")
-@
-
-
-
-<<tableMt, results='asis', echo=FALSE>>=
-strCaption <- paste0("")
-print(xtable(lmMtTestSelectionShort, digits=3, caption=strCaption, label="Test_table"),
-size="footnotesize", #Change size; useful for bigger tables
-include.rownames=TRUE, #Don't print rownames
-include.colnames=FALSE, #We create them ourselves
-caption.placement="top",
-hline.after=NULL, #We don't need hline; we use booktabs
-add.to.row = list(pos = list(-1,
-nrow(lmMtTestSelectionShort)),
-command = c(paste("\\toprule \n", " & $\\phi_M$ &$\\MtIttIntrogressions{=1}$ & $\\overline{\\Mitochondria}$  & $\\bar{D}$  & $\\frequency{p_D<0.05}$ & $\\bar{F_s}$ & $\\frequency{p_{F_s}<0.05}$ \\\\\n","\\midrule \n"),"\\bottomrule \n")
-)
-)
 @
 
 \end{document}
