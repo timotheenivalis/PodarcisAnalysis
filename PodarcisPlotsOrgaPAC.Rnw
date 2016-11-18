@@ -95,6 +95,7 @@ if (DrawLegend==T)
 {legend(x="topleft",legend=c("$\\AutLociIntrogressed{>0.1}$","$\\AutCopiesIntrogressed$"),col=c(gray(level=0.7),"black"),pch=c(15,1),lty=c(2,1),ncol=1,pt.lwd=lwdP,lwd=lwdP,cex=cexP)  }
 }
 
+###################
 plotDisc<-function(x,y,dmt,xlabb,transfo=identity,DrawLegend=FALSE,limY=c(-1,1),limX=c(0,1), subind="", leftside=TRUE, yylab="",main = "",...){
 
   if(leftside==TRUE){
@@ -112,7 +113,7 @@ par(mar=c(5,3,2,3)+0.1)
   boxplot(disc~Param,data=dmt,axes=T,xaxt="n",yaxt="n",at=sort(transfo(x[,y])),boxwex=calcboxwex,border=colMt,boxlwd=lwdP,whisklwd=lwdP,staplelwd=lwdP,outlwd=lwdP,medlwd=lwdP,xlim=limX,xlab=xlabb,ylab="",cex.lab=cexP,las=1,cex.axis=cexP,ylim=limY,main=main)
 
   abline(h = 0.8,col=gray(level = 0.5),lwd=lwdP,lty=2)
-legend(x="topleft", legend=subind, bty = "n", cex = cexP, bg = "white")
+legend(x="bottomright", legend=subind, bty = "n", cex = cexP, bg = "white")
 axis(side = 1,at = transfo(x[,y]),labels = x[,y],cex.axis=cexP,xpd = TRUE)
 
 if(leftside==TRUE)
@@ -225,29 +226,78 @@ limY<-c(-1,1)
 
 
 #(1,1) HIGH M, disp
-plotDisc(x = BD,y = "DispB",dmt = BDdistriMt,xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,DrawLegend = T,limX=log(c(min(BDdistriMt$Param),max(BDdistriMt$Param))), subind="\\textbf{(A)}", leftside = TRUE, limY=limY)
+plotDisc(x = BD,y = "DispB",dmt = BDdistriMt,xlabb="Female relative dispersal",transfo=log,DrawLegend = T,limX=log(c(min(BDdistriMt$Param),max(BDdistriMt$Param))), subind="\\textbf{(A)}", leftside = TRUE, limY=limY)
 
 #(1,2) LOW M, disp
 lmBDDMT$DispB<-lmBDDMT$Param
-plotDisc(x = lmBD,y = "DispB",dmt = lmBDDMT,xlabb="Female relative dispersal ($m_{\\female} / m_{\\male}$)",transfo=log,DrawLegend = T,limX=log(c(min(lmBDDMT$Param),max(lmBDDMT$Param))),subind="\\textbf{(B)}", leftside = FALSE, limY=limY)
+plotDisc(x = lmBD,y = "DispB",dmt = lmBDDMT,xlabb="Female relative dispersal",transfo=log,DrawLegend = T,limX=log(c(min(lmBDDMT$Param),max(lmBDDMT$Param))),subind="\\textbf{(B)}", leftside = FALSE, limY=limY)
 
 
 #(2,1) HIGH M, hybrid surviva
-plotDisc(x = BH,y = "FitnessH",dmt = BHdistriMt,xlabb="Female relative hybrid survival ($\\phi_{h,\\female} / \\phi_{h,\\male}$)",transfo=log,DrawLegend = T,limX=(c(min(BHdistriMt$Param),max(BHdistriMt$Param))),subind="\\textbf{(C)}", leftside = TRUE, limY = limY)
+plotDisc(x = BH,y = "FitnessH",dmt = BHdistriMt,xlabb="Female relative hybrid survival",transfo=log,DrawLegend = T,limX=(c(min(BHdistriMt$Param),max(BHdistriMt$Param))),subind="\\textbf{(C)}", leftside = TRUE, limY = limY)
 
 #(2,2) LOW M, hybrid survival
 lmBHDMT$FitnessH<-lmBHDMT$Param
-plotDisc(x = lmBH,y = "FitnessH",dmt = lmBHDMT,xlab="Female relative hybrid survival ($\\phi_{h,\\female} / \\phi_{h,\\male}$)",transfo=log,DrawLegend = T,limX=log(c(min(lmBHDMT$Param),max(lmBHDMT$Param))),subind="\\textbf{(D)}", leftside = FALSE, limY = limY)
+plotDisc(x = lmBH,y = "FitnessH",dmt = lmBHDMT,xlab="Female relative hybrid survival ",transfo=log,DrawLegend = T,limX=log(c(min(lmBHDMT$Param),max(lmBHDMT$Param))),subind="\\textbf{(D)}", leftside = FALSE, limY = limY)
 
 #(3,1) HIGH M, mating
-plotDisc(x = BC,y = "ACross",dmt = BCdistriMt,xlabb="Relative symmetry of inter-taxa crosses ($\\psi$)",transfo=identity,DrawLegend = T,limX=c(min(BCdistriMt$Param),max(BCdistriMt$Param)),subind="\\textbf{(E)}", leftside=TRUE, limY = limY)
+plotDisc(x = BC,y = "ACross",dmt = BCdistriMt,xlabb="Symmetry of inter-taxa crosses",transfo=identity,DrawLegend = T,limX=c(min(BCdistriMt$Param),max(BCdistriMt$Param)),subind="\\textbf{(E)}", leftside=TRUE, limY = limY, yylab = "\\textbf{Mito-nuclear discordance}")
 
 #(3,2) LOW M, matingl
 lmBCDMT$ACross<-lmBCDMT$Param
-plotDisc(x=lmBC[which(lmBC$ACross!=0.01),],y="ACross",dmt=lmBCDMT[which(lmBCDMT$Param!=0.01),],xlab="Relative symetry of inter-taxa crosses ($\\psi$)",transfo=identity, DrawLegend = T,limX=c(0,1),subind="\\textbf{(F)}", leftside = FALSE, limY = limY)
+plotDisc(x=lmBC[which(lmBC$ACross!=0.01),],y="ACross",dmt=lmBCDMT[which(lmBCDMT$Param!=0.01),],xlab="Symetry of inter-taxa crosses",transfo=identity, DrawLegend = T,limX=c(0,1),subind="\\textbf{(F)}", leftside = FALSE, limY = limY)
+
+#(4,1) HIGH M, All combi 
+par(mar=c(5,6,2,0)+0.1)
+allcombidisc<-allcombiDistriMt$DistriMtMax- allcombiDistriMt$DistriNuMtMax
+achist<-hist(allcombidisc,breaks=30,plot = F)
+achist$counts<-achist$counts/sum(achist$counts)
+plot(NULL,xlim=c(0,max(achist$counts)+0.01), ylim=c(-0.5,1),col=gray(level = 0.5),las=1,ylab="",main="", xlab= "Frequency distribution", cex.axis =cexP, cex.lab= cexP)
+rect(0,achist$breaks[1:(length(achist$breaks) - 1)], achist$counts, achist$breaks[2:length(achist$breaks)], col = rgb(red = 1,0,0,0.3), lty = 1, lwd=0.01, border= rgb(0.1,0.1,0.1,0.3))
+
+refdisc <- BDdistriMt$DistriMtMax[BDdistriMt$DispB==1] - BDCdistriMt$DistriNuMtMax[BDdistriMt$DispB==1]
+aref<-hist(refdisc,breaks=30,plot = F)
+aref$counts <- aref$counts/sum(aref$counts)
+rect(0,aref$breaks[1:(length(aref$breaks) - 1)], aref$counts, aref$breaks[2:length(aref$breaks)], col = rgb(red = 0,0,1,0.3), lty = 1, lwd=0.01, border= rgb(0.1,0.1,0.1,0.3))
+abline(h = 0.8,col=gray(level = 0.5),lwd=lwdP,lty=2)
+legend(x="bottomright", legend="\\textbf{(G)}", bty = "n", cex = cexP, bg = "white")
+
+# #(4,2) LOW M, All combi
+par(mar=c(5,3,2,3)+0.1)
+ lmachist<-hist(lmallcombidisc,breaks = 25,plot = F)
+ lmachist$counts<-lmachist$counts/sum(lmachist$counts)
+ lmachist$counts<-log(log(1000*lmachist$counts+1)+1)
+ plot(NULL,ylim=c(-0.5,1), xlim= c(0,max(lmachist$counts)),col=rgb(red = 1,0,0,0.3),las=1,xlab="Frequency distribution",main="",xaxt="n", yaxt="n", ylab= "", cex.lab=cexP, cex.axis = cexP)
+# 
+ rect(0,lmachist$breaks[1:(length(lmachist$breaks) - 1)], lmachist$counts, lmachist$breaks[2:length(lmachist$breaks)], col = rgb(red = 1,0,0,0.3), lty = 1, lwd=0.01, border= rgb(0.1,0.1,0.1,0.3))
+ 
+ lmachist0<-hist(lmBDDMT$DistriMtMax[which(lmBDDMT$Simul=="lmBD0")]- lmBDDMT$DistriNuMtMax[which(lmBDDMT$Simul=="lmBD0")],breaks = 12,plot = F)
+ lmachist0$counts<-lmachist0$counts/sum(lmachist0$counts)
+ lmachist0$counts<-log(log(1000*lmachist0$counts+1)+1)
+# 
+ rect(0, lmachist0$breaks[1:(length( lmachist0$breaks) - 1)],  lmachist0$counts,  lmachist0$breaks[2:length( lmachist0$breaks)], col=rgb(red = 0,0,1,0.3), lty= 1, lwd =0.01, border= rgb(0.1,0.1,0.1,0.3) )
+     
+ county<-c(0,0.01,0.1,0.9)
+ axis(side = 1,at = log(log(1000*county+1)+1),labels = county,las=1, cex.axis= cexP)
+axis(side = 2,at = seq(-1,1,0.5), labels=FALSE,cex.axis=cexP,las=1,xpd = FALSE)
+
+ abline(h = 0.8,col=gray(level = 0.5),lwd=lwdP,lty=2)
+legend(x="bottomright", legend="\\textbf{(H)}", bty = "n", cex = cexP, bg = "white")
+ legend(cex = 1.4, x = "topright",legend = c("Reference","All sex-biases combined"),fill=c(rgb(red = 0,0,1,0.3),rgb(red = 1,0,0,0.3)),bg = "white", border=rgb(0.1,0.1,0.1,0.3), y.intersp=0.9)
+ 
+ 
+ #(5,1) HIGH M, Invasion 
+ 
+ HunProfiledistriMt$DispB<- exp(round(HunProfiledistriMt$Param,digits = 6))
+ plotDisc(x=HunPr,dmt = HunProfiledistriMt, y="DispB",xlabb="Female relative dispersal",transfo=log,limX = log(c(min(HunPr$DispB),max(HunPr$DispB))),subind="\\textbf{(I)}",  leftside=TRUE, limY = limY)
+ 
+ #(5,2) LOW M, Invasion
+ lmHunPrSDMT$DispB<- exp(round(lmHunPrSDMT$Param,digits = 6))
+ plotDisc(x=lmHunPrS,dmt = lmHunPrSDMT, y="DispB",xlabb="Female relative dispersal",transfo=log,limX = log(c(min(lmHunPrS$DispB),max(lmHunPrS$DispB))),subind="\\textbf{(J)}", leftside=FALSE, limY = limY)
+
 
 # headers
-mtext("\\textbf{High introgression}", side=3, line=-1.5, outer=TRUE, cex=1.5, at =c(0.35,10))
+mtext("\\textbf{High introgression}", side=3, line=-1.5, outer=TRUE, cex=1.5, at =c(0.32,10))
 mtext("\\textbf{Low introgression}", side=3, line=-1.5, outer=TRUE, cex=1.5, at = c(0.75,10))
 
 @
