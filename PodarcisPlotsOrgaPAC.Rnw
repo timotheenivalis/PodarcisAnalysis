@@ -47,7 +47,7 @@ load(file = "/home/timothee/Documents/GitHub/PodarcisAnalysis/allpodarcis.RData"
 
 
 <<ParamPlot,echo=FALSE>>=
-cexP<-2
+cexP<-1.8
 lwdP<-5
 limYP<-1
 atLab<- seq(0,to = 1,by = 0.2)
@@ -96,13 +96,24 @@ if (DrawLegend==T)
 }
 
 ###################
-plotDisc<-function(x,y,dmt,xlabb,transfo=identity,DrawLegend=FALSE,limY=c(-1,1),limX=c(0,1), subind="", leftside=TRUE, yylab="",main = "",...){
+plotDisc<-function(x,y,dmt,xlabb,transfo=identity,DrawLegend=FALSE,limY=c(-1,1),limX=c(0,1), subind="", leftside=TRUE, yylab="",main = "", roomup = FALSE, ...){
 
-  if(leftside==TRUE){
-par(mar=c(5,6,2,0)+0.1)
+  if(leftside){
+    left <- 6
+    right <- 0
   }else{
-par(mar=c(5,3,2,3)+0.1)
+    left <- 3
+    right <- 3
   }
+  if(roomup)
+  {
+    top <- 2
+    bottom <- 5
+  }else{
+    top <- 2
+    bottom <- 5
+  }
+  par(mar = c( bottom, left, top, right)+0.1)
 
   dmt$Param<-dmt[,y]
   
@@ -110,18 +121,18 @@ par(mar=c(5,3,2,3)+0.1)
   
   calcboxwex<-(max(transfo(x[,y]),na.rm=T)-min(transfo(x[,y]),na.rm=T))/boxr
   
-  boxplot(disc~Param,data=dmt,axes=T,xaxt="n",yaxt="n",at=sort(transfo(x[,y])),boxwex=calcboxwex,border=colMt,boxlwd=lwdP,whisklwd=lwdP,staplelwd=lwdP,outlwd=lwdP,medlwd=lwdP,xlim=limX,xlab=xlabb,ylab="",cex.lab=cexP,las=1,cex.axis=cexP,ylim=limY,main=main)
+  boxplot(disc~Param,data=dmt,axes=T,xaxt="n",yaxt="n",at=sort(transfo(x[,y])), boxwex=calcboxwex,border=colMt,boxlwd=lwdP,whisklwd=lwdP,staplelwd=lwdP,outlwd=lwdP,medlwd=lwdP,xlim=limX,xlab=paste("\\textbf{",xlabb,"}", sep=""), ylab="",cex.lab=cexP,las=1, cex.axis=cexText,ylim=limY,main=main, cex=1 )
 
   abline(h = 0.8,col=gray(level = 0.5),lwd=lwdP,lty=2)
 legend(x="bottomright", legend=subind, bty = "n", cex = cexP, bg = "white")
-axis(side = 1,at = transfo(x[,y]),labels = x[,y],cex.axis=cexP,xpd = TRUE)
+axis(side = 1,at = transfo(x[,y]),labels = x[,y],cex.axis=cexText,xpd = TRUE)
 
 if(leftside==TRUE)
 {
-axis(side = 2,at = seq(-1,1,0.5),cex.axis=cexP,las=1,xpd = FALSE)
+axis(side = 2,at = seq(-1,1,0.5),cex.axis=cexText,las=1,xpd = FALSE)
 
 }else{
-axis(side = 2,at = seq(-1,1,0.5), labels=FALSE,cex.axis=cexP,las=1,xpd = FALSE)
+axis(side = 2,at = seq(-1,1,0.5), labels=FALSE,cex.axis=cexText,las=1,xpd = FALSE)
 }
 mtext(yylab,side=2,line=4,cex=cexP, las=0)
 
@@ -206,10 +217,11 @@ mtext(text = xlabb, side = 1, line = 4.25, cex = cexP*0.9)
 \section{main graphes}
 \subsection{Page 1: Discordance}
 
-<<DiscordanceAll, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center', fig.height=10, fig.width=7>>=
+<<DiscordanceAll, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center', fig.height=10, fig.width=8>>=
 
-cexP<-2.2
-lwdP<-2
+cexP<-2.4
+cexText<-2# for axis X
+lwdP<-3
 lwd<-2
 limYP<-1
 atLab<- seq(0,to = 1,by = 0.2)
@@ -220,7 +232,7 @@ lowBound<-"0"
 highBound<-"100"
 boxr <- 20
 
-par(layout(mat=matrix(1:10,nrow = 5,byrow=TRUE)),las=1)  
+par(layout(mat=matrix(1:8,nrow = 4,byrow=TRUE)),las=1)  
 #par(layout(mat=matrix(1:6,nrow = 3,byrow=TRUE)),las=1)  
 limY<-c(-1,1)
 
@@ -247,6 +259,28 @@ plotDisc(x = BC,y = "ACross",dmt = BCdistriMt,xlabb="Symmetry of inter-taxa cros
 lmBCDMT$ACross<-lmBCDMT$Param
 plotDisc(x=lmBC[which(lmBC$ACross!=0.01),],y="ACross",dmt=lmBCDMT[which(lmBCDMT$Param!=0.01),],xlab="Symetry of inter-taxa crosses",transfo=identity, DrawLegend = T,limX=c(0,1),subind="\\textbf{(F)}", leftside = FALSE, limY = limY)
 
+  #(5,1) HIGH M, Invasion 
+ 
+ HunProfiledistriMt$DispB<- exp(round(HunProfiledistriMt$Param,digits = 6))
+ plotDisc(x=HunPr,dmt = HunProfiledistriMt, y="DispB",xlabb="Female relative dispersal",transfo=log,limX = log(c(min(HunPr$DispB),max(HunPr$DispB))),subind="\\textbf{(I)}",  leftside=TRUE, limY = limY)
+ 
+ #(5,2) LOW M, Invasion
+ lmHunPrSDMT$DispB<- exp(round(lmHunPrSDMT$Param,digits = 6))
+ plotDisc(x=lmHunPrS,dmt = lmHunPrSDMT, y="DispB",xlabb="Female relative dispersal",transfo=log,limX = log(c(min(lmHunPrS$DispB),max(lmHunPrS$DispB))),subind="\\textbf{(J)}", leftside=FALSE, limY = limY)
+
+
+# headers
+mtext("\\textbf{High introgression}", side=3, line=-1.5, outer=TRUE, cex=1.5, at =c(0.32,10))
+mtext("\\textbf{Low introgression}", side=3, line=-1.5, outer=TRUE, cex=1.5, at = c(0.75,10))
+
+@
+
+
+
+<<DiscordanceCombi, dev='tikz', echo=F,out.width='\\textwidth',fig.align='center', fig.height=5, fig.width=12>>=
+par(layout(mat=matrix(1:2,nrow = 1,byrow=TRUE)),las=1)  
+
+cexP = 2.2
 #(4,1) HIGH M, All combi 
 par(mar=c(5,6,2,0)+0.1)
 allcombidisc<-allcombiDistriMt$DistriMtMax- allcombiDistriMt$DistriNuMtMax
@@ -260,7 +294,7 @@ aref<-hist(refdisc,breaks=30,plot = F)
 aref$counts <- aref$counts/sum(aref$counts)
 rect(0,aref$breaks[1:(length(aref$breaks) - 1)], aref$counts, aref$breaks[2:length(aref$breaks)], col = rgb(red = 0,0,1,0.3), lty = 1, lwd=0.01, border= rgb(0.1,0.1,0.1,0.3))
 abline(h = 0.8,col=gray(level = 0.5),lwd=lwdP,lty=2)
-legend(x="bottomright", legend="\\textbf{(G)}", bty = "n", cex = cexP, bg = "white")
+legend(x="bottomright", legend="\\textbf{(A)}", bty = "n", cex = cexP, bg = "white")
 
 # #(4,2) LOW M, All combi
 par(mar=c(5,3,2,3)+0.1)
@@ -282,26 +316,10 @@ par(mar=c(5,3,2,3)+0.1)
 axis(side = 2,at = seq(-1,1,0.5), labels=FALSE,cex.axis=cexP,las=1,xpd = FALSE)
 
  abline(h = 0.8,col=gray(level = 0.5),lwd=lwdP,lty=2)
-legend(x="bottomright", legend="\\textbf{(H)}", bty = "n", cex = cexP, bg = "white")
- legend(cex = 1.4, x = "topright",legend = c("Reference","All sex-biases combined"),fill=c(rgb(red = 0,0,1,0.3),rgb(red = 1,0,0,0.3)),bg = "white", border=rgb(0.1,0.1,0.1,0.3), y.intersp=0.9)
+legend(x="bottomright", legend="\\textbf{(B)}", bty = "n", cex = cexP, bg = "white")
+ legend(cex = 2, x = "topright",legend = c("Reference","All sex-biases combined"),fill=c(rgb(red = 0,0,1,0.3),rgb(red = 1,0,0,0.3)),bg = "white", border=rgb(0.1,0.1,0.1,0.3), y.intersp=0.9)
  
- 
- #(5,1) HIGH M, Invasion 
- 
- HunProfiledistriMt$DispB<- exp(round(HunProfiledistriMt$Param,digits = 6))
- plotDisc(x=HunPr,dmt = HunProfiledistriMt, y="DispB",xlabb="Female relative dispersal",transfo=log,limX = log(c(min(HunPr$DispB),max(HunPr$DispB))),subind="\\textbf{(I)}",  leftside=TRUE, limY = limY)
- 
- #(5,2) LOW M, Invasion
- lmHunPrSDMT$DispB<- exp(round(lmHunPrSDMT$Param,digits = 6))
- plotDisc(x=lmHunPrS,dmt = lmHunPrSDMT, y="DispB",xlabb="Female relative dispersal",transfo=log,limX = log(c(min(lmHunPrS$DispB),max(lmHunPrS$DispB))),subind="\\textbf{(J)}", leftside=FALSE, limY = limY)
-
-
-# headers
-mtext("\\textbf{High introgression}", side=3, line=-1.5, outer=TRUE, cex=1.5, at =c(0.32,10))
-mtext("\\textbf{Low introgression}", side=3, line=-1.5, outer=TRUE, cex=1.5, at = c(0.75,10))
-
 @
-
 
 \section{Introg = f(migration)}
 
